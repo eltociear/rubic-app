@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, isDevMode } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Inject, isDevMode } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CookieService } from 'ngx-cookie-service';
@@ -10,6 +10,7 @@ import { QueryParams } from '@core/services/query-params/models/query-params';
 import { QueryParamsService } from '@core/services/query-params/query-params.service';
 import { GoogleTagManagerService } from '@core/services/google-tag-manager/google-tag-manager.service';
 import { isSupportedLanguage } from '@shared/models/languages/supported-languages';
+import { tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,16 @@ import { isSupportedLanguage } from '@shared/models/languages/supported-language
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent implements AfterViewInit {
-  public isBackendAvailable: boolean;
+  /**
+   * Current backend health status.
+   */
+  public isBackendAvailable$ = this.healthCheckService.checkServerHealth().pipe(
+    tap(() => {
+      this.document.getElementById('loader')?.classList.add('disabled');
+      setTimeout(() => this.document.getElementById('loader')?.remove(), 400); /* ios safari */
+      this.cdr.detectChanges();
+    })
+  );
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -28,12 +38,12 @@ export class AppComponent implements AfterViewInit {
     private readonly healthCheckService: HealthcheckService,
     private readonly queryParamsService: QueryParamsService,
     private readonly activatedRoute: ActivatedRoute,
-    private readonly errorService: ErrorsService
+    private readonly errorService: ErrorsService,
+    private readonly cdr: ChangeDetectorRef
   ) {
     this.printTimestamp();
     this.initQueryParamsSubscription();
     this.setupLanguage();
-    this.checkHealth();
   }
 
   ngAfterViewInit() {
@@ -120,17 +130,6 @@ export class AppComponent implements AfterViewInit {
     );
     setTimeout(() => {
       queryParamsSubscription$.unsubscribe();
-    });
-  }
-
-  /**
-   * Checks health of backend server.
-   */
-  private checkHealth(): void {
-    this.healthCheckService.healthCheck().then(isAvailable => {
-      this.isBackendAvailable = isAvailable;
-      document.getElementById('loader')?.classList.add('disabled');
-      setTimeout(() => document.getElementById('loader')?.remove(), 400); /* ios safari */
     });
   }
 

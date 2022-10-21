@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ENVIRONMENT } from 'src/environments/environment';
 
@@ -14,6 +14,13 @@ export class HttpService {
   public get<T>(url: string, data?: {}, path?: string): Observable<T> {
     return this.http.get<T>((path || SERVER_REST_URL) + (url || ''), {
       params: data || {}
+    });
+  }
+
+  public getHttpResponse<T>(url: string, data?: {}, path?: string): Observable<HttpResponse<T>> {
+    return this.http.get<T>((path || SERVER_REST_URL) + (url || ''), {
+      params: data || {},
+      observe: 'response'
     });
   }
 

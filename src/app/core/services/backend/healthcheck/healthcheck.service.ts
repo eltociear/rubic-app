@@ -1,21 +1,22 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { ENVIRONMENT } from 'src/environments/environment';
+import { Observable, of, retry, throwError } from 'rxjs';
+import { catchError, mergeMap, timeout } from 'rxjs/operators';
+import { HttpService } from '@core/services/http/http.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class HealthcheckService {
-  constructor(private httpClient: HttpClient) {}
+  constructor(private httpService: HttpService) {}
 
-  public healthCheck(): Promise<boolean> {
-    return new Promise(resolve => {
-      this.httpClient
-        .get(`${ENVIRONMENT.apiBaseUrl}/v1/healthcheck`, { observe: 'response' })
-        .subscribe(
-          response => resolve(response.status === 200),
-          () => resolve(false)
-        );
-    });
+  public checkServerHealth(): Observable<boolean> {
+    return this.httpService.getHttpResponse<string>('v1/healthcheck').pipe(
+      timeout(5000),
+      mergeMap(response =>
+        response.status === 200 ? of(true) : throwError(() => new Error('Wrong status'))
+      ),
+      retry(2),
+      catchError(() => of(false))
+    );
   }
 }
