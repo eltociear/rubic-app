@@ -42,6 +42,10 @@ const routes: Routes = [
     loadChildren: () => import('./features/promotion/promotion.module').then(m => m.PromotionModule)
   },
   {
+    path: ROUTE_PATH.AIRDROP,
+    loadChildren: () => import('./features/airdrop/airdrop.module').then(m => m.AirdropModule)
+  },
+  {
     path: ROUTE_PATH.REST,
     redirectTo: '/'
   }

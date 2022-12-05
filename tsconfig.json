@@ -15,6 +15,7 @@
     "target": "es2020",
     "resolveJsonModule": true,
     "skipDefaultLibCheck": true,
+    "allowSyntheticDefaultImports": true,
     "typeRoots": [
       "node_modules/@types"
     ],

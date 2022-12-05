@@ -1,0 +1,7 @@
+<app-rubic-button
+  *ngIf="(addressState$ | async)?.valid"
+  appearance="secondary"
+  [loading]="loading$ | async"
+  (onClick)="handleClaim()"
+  >Claim tokens now
+</app-rubic-button>

@@ -1,0 +1,27 @@
+<ng-container *ngLet="airdropForm.controls.address as address">
+  <form [formGroup]="airdropForm">
+    <tui-input formControlName="address" [pseudoInvalid]="address.invalid && !!address.value">
+      Enter ETH address
+    </tui-input>
+  </form>
+
+  <ng-container *ngLet="claimedTokens$ | async as claimedTokens">
+    <div *ngIf="!!address.value" class="description">
+      <ng-container *ngIf="address.valid; else error">
+        <img
+          class="description__icon"
+          src="assets/images/icons/airdrop/success.svg"
+          alt="Success"
+        />
+        <div class="description__content">
+          <p>Yes, this address is eligible for a token claim</p>
+          <span>{{ claimedTokens }} token claimable out</span>
+        </div>
+      </ng-container>
+      <ng-template #error>
+        <img class="description__icon" src="assets/images/icons/airdrop/error.svg" alt="Error" />
+        <p>Sorry, this address is not eligible to claim any tokens.</p>
+      </ng-template>
+    </div>
+  </ng-container>
+</ng-container>

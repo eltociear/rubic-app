@@ -7,7 +7,8 @@ export enum ROUTE_PATH {
   TRADES = 'my-trades',
   STAKING = 'staking',
   PROMOTION = 'promotion',
-  REST = '**'
+  REST = '**',
+  AIRDROP = 'airdrop'
 }
 
 export enum EXTERNAL_LINKS {
