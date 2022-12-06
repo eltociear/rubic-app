@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import AirdropMerkleTree from '../constants/airdrop-merkle-tree.json';
 import BalanceTree from '@features/airdrop/utils/balance-tree';
 import BigNumber from 'bignumber.js';
-import { CHAIN_TYPE, Injector, Web3Pure } from 'rubic-sdk';
+import { BLOCKCHAIN_NAME, CHAIN_TYPE, Injector, Web3Pure } from 'rubic-sdk';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { checkAddressValidity } from '@features/airdrop/utils/merkle-tree-address-validation';
 import { filter, map } from 'rxjs/operators';
@@ -11,6 +11,9 @@ import { BehaviorSubject } from 'rxjs';
 import { airdropContractAbi } from '@features/airdrop/constants/airdrop-contract-abi';
 import { AirdropNode } from '@features/airdrop/models/airdrop-node';
 import { BigNumber as EthersBigNumber } from 'ethers';
+import { NotificationsService } from '@core/services/notifications/notifications.service';
+import { TuiNotification } from '@taiga-ui/core';
+import { RubicError } from '@core/errors/models/rubic-error';
 
 interface SourceNode {
   index: number;
@@ -52,7 +55,7 @@ export class AirdropService {
     map(() => this.airdropForm.controls.address.valid)
   );
 
-  constructor() {}
+  constructor(private readonly notificationsService: NotificationsService) {}
 
   @tuiPure
   public getProofByAddress(address: string): string[] | null {
@@ -94,7 +97,13 @@ export class AirdropService {
 
   public async claimTokens(): Promise<void> {
     this._claimLoading$.next(true);
+
     try {
+      const isPaused = this.checkIsPaused();
+      if (isPaused) {
+        this.handlePause();
+      }
+
       const web3 = Injector.web3PrivateService.getWeb3Private(CHAIN_TYPE.EVM);
       const address = this.airdropForm.controls.address.value;
       const node = this.getNodeByAddress(address);
@@ -111,5 +120,19 @@ export class AirdropService {
     } finally {
       this._claimLoading$.next(false);
     }
+  }
+
+  private async checkIsPaused(): Promise<boolean> {
+    return Injector.web3PublicService
+      .getWeb3Public(BLOCKCHAIN_NAME.ETHEREUM)
+      .callContractMethod(this.airDropContractAddress, airdropContractAbi, 'paused', []);
+  }
+
+  private handlePause(): void {
+    this.notificationsService.show('Contract is paused.', {
+      autoClose: 10000,
+      status: TuiNotification.Warning
+    });
+    throw new RubicError('Contract is Paused');
   }
 }
