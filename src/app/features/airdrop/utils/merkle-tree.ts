@@ -1,4 +1,4 @@
-import { keccak256 } from 'ethers/lib/utils';
+import { bufferToHex, keccak256 } from 'ethereumjs-util';
 
 export default class MerkleTree {
   private readonly elements: Buffer[];
@@ -9,21 +9,24 @@ export default class MerkleTree {
 
   constructor(elements: Buffer[]) {
     this.elements = [...elements];
+    // Sort elements
     this.elements.sort(Buffer.compare);
+    // Deduplicate elements
     this.elements = MerkleTree.bufDedup(this.elements);
 
     this.bufferElementPositionIndex = this.elements.reduce<{ [hexElement: string]: number }>(
       (memo, el, index) => {
-        memo[el.toString('hex')] = index;
+        memo[bufferToHex(el)] = index;
         return memo;
       },
       {}
     );
 
+    // Create layers
     this.layers = this.getLayers(this.elements);
   }
 
-  public getLayers(elements: Buffer[]): Buffer[][] {
+  getLayers(elements: Buffer[]): Buffer[][] {
     if (elements.length === 0) {
       throw new Error('empty tree');
     }
@@ -31,6 +34,7 @@ export default class MerkleTree {
     const layers = [];
     layers.push(elements);
 
+    // Get next layer until we reach the root
     while (layers[layers.length - 1].length > 1) {
       layers.push(this.getNextLayer(layers[layers.length - 1]));
     }
@@ -38,9 +42,10 @@ export default class MerkleTree {
     return layers;
   }
 
-  public getNextLayer(elements: Buffer[]): Buffer[] {
+  getNextLayer(elements: Buffer[]): Buffer[] {
     return elements.reduce<Buffer[]>((layer, el, idx, arr) => {
       if (idx % 2 === 0) {
+        // Hash the current element with its pair element
         layer.push(MerkleTree.combinedHash(el, arr[idx + 1]));
       }
 
@@ -56,15 +61,19 @@ export default class MerkleTree {
       return first;
     }
 
-    return Buffer.from(keccak256(MerkleTree.sortAndConcat(first, second)), 'hex');
+    return keccak256(MerkleTree.sortAndConcat(first, second));
   }
 
-  public getRoot(): Buffer {
+  getRoot(): Buffer {
     return this.layers[this.layers.length - 1][0];
   }
 
-  public getProof(el: Buffer): Buffer[] {
-    let idx = this.bufferElementPositionIndex[el.toString('hex')];
+  getHexRoot(): string {
+    return bufferToHex(this.getRoot());
+  }
+
+  getProof(el: Buffer): Buffer[] {
+    let idx = this.bufferElementPositionIndex[bufferToHex(el)];
 
     if (typeof idx !== 'number') {
       throw new Error('Element does not exist in Merkle tree');
@@ -83,7 +92,7 @@ export default class MerkleTree {
     }, []);
   }
 
-  public getHexProof(el: Buffer): string[] {
+  getHexProof(el: Buffer): string[] {
     const proof = this.getProof(el);
 
     return MerkleTree.bufArrToHexArr(proof);
@@ -110,8 +119,7 @@ export default class MerkleTree {
       throw new Error('Array is not an array of buffers');
     }
 
-    const proofs = arr.map(el => '0x' + el.toString('hex'));
-    return proofs;
+    return arr.map(el => '0x' + el.toString('hex'));
   }
 
   private static sortAndConcat(...args: Buffer[]): Buffer {

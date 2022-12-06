@@ -15,7 +15,9 @@
         />
         <div class="description__content">
           <p>Yes, this address is eligible for a token claim</p>
-          <span>{{ claimedTokens }} token claimable out</span>
+          <span
+            >{{ claimedTokens | bigNumberFormat | withRound: 'toClosestValue' }} token claimable out
+          </span>
         </div>
       </ng-container>
       <ng-template #error>

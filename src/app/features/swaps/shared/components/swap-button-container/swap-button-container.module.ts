@@ -24,7 +24,7 @@ import { ErrorButtonComponent } from '@features/swaps/shared/components/swap-but
     ErrorButtonComponent
   ],
   imports: [CommonModule, SharedModule],
-  exports: [SwapButtonContainerComponent],
+  exports: [SwapButtonContainerComponent, ConnectWalletButtonComponent],
   providers: [
     SwapButtonContainerService,
     SwapButtonContainerErrorsService,

@@ -10,21 +10,27 @@ import { tuiPure } from '@taiga-ui/cdk';
 import { BehaviorSubject } from 'rxjs';
 import { airdropContractAbi } from '@features/airdrop/constants/airdrop-contract-abi';
 import { AirdropNode } from '@features/airdrop/models/airdrop-node';
+import { BigNumber as EthersBigNumber } from 'ethers';
+
+interface SourceNode {
+  index: number;
+  balance: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class AirdropService {
-  private readonly merkleTreeSource = AirdropMerkleTree;
+  private readonly merkleTreeSource: { [Key: string]: SourceNode } = AirdropMerkleTree;
 
   private readonly merkleTree = new BalanceTree(
-    this.merkleTreeSource.map(node => ({
-      account: node.holderAddress,
-      amount: Web3Pure.toWei(node.balance)
+    Object.entries(this.merkleTreeSource).map(([address, { balance }]) => ({
+      account: address,
+      amount: EthersBigNumber.from(balance)
     }))
   );
 
-  private readonly airDropContractAddress = '0x79f9EecD08Fd378A6B547B14A590CD905f310E00';
+  private readonly airDropContractAddress = '0x057E171E6Bd2Ea1e474790f49AC369Cfe925A535';
 
   private readonly _claimLoading$ = new BehaviorSubject(false);
 
@@ -36,7 +42,10 @@ export class AirdropService {
 
   public readonly claimedTokens$ = this.airdropForm.controls.address.valueChanges.pipe(
     filter(() => this.airdropForm.controls.address.valid),
-    map(address => this.getAmountByAddress(address))
+    map(address => {
+      const amount = this.getAmountByAddress(address);
+      return Web3Pure.fromWei(amount.toString());
+    })
   );
 
   public readonly isValid$ = this.airdropForm.controls.address.valueChanges.pipe(
@@ -56,7 +65,7 @@ export class AirdropService {
       return null;
     }
 
-    return this.merkleTree.getProof(desiredNode.index, address, Web3Pure.toWei(desiredNode.amount));
+    return this.merkleTree.getProof(desiredNode.index, address, desiredNode.amount);
   }
 
   @tuiPure
@@ -65,22 +74,22 @@ export class AirdropService {
       return null;
     }
 
-    const nodeIndex = this.merkleTreeSource.findIndex(node => node.holderAddress === address);
-    if (nodeIndex === -1) {
+    const node = this.merkleTreeSource?.[address];
+    if (!node) {
       return null;
     }
 
     return {
-      index: nodeIndex,
+      index: node.index,
       account: address,
-      amount: new BigNumber(this.merkleTreeSource[nodeIndex].balance || 0)
+      amount: EthersBigNumber.from(node.balance)
     };
   }
 
   @tuiPure
   private getAmountByAddress(address: string | null): BigNumber {
     const node = this.getNodeByAddress(address);
-    return node?.amount || null;
+    return node ? new BigNumber(node.amount.toString()) : new BigNumber(0);
   }
 
   public async claimTokens(): Promise<void> {
@@ -95,7 +104,7 @@ export class AirdropService {
         this.airDropContractAddress,
         airdropContractAbi,
         'claim',
-        [node.index, node.account, Web3Pure.toWei(node.amount), proof]
+        [node.index, node.account, node.amount, proof]
       );
     } catch (err) {
       console.debug(err);

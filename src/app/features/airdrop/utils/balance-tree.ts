@@ -1,10 +1,10 @@
-import MerkleTree from 'src/app/features/airdrop/utils/merkle-tree';
+import MerkleTree from './merkle-tree';
 import { BigNumber, utils } from 'ethers';
 
 export default class BalanceTree {
   private readonly tree: MerkleTree;
 
-  constructor(balances: { account: string; amount: string }[]) {
+  constructor(balances: { account: string; amount: BigNumber }[]) {
     this.tree = new MerkleTree(
       balances.map(({ account, amount }, index) => {
         return BalanceTree.toNode(index, account, amount);
@@ -15,7 +15,7 @@ export default class BalanceTree {
   public static verifyProof(
     index: number | BigNumber,
     account: string,
-    amount: string,
+    amount: BigNumber,
     proof: Buffer[],
     root: Buffer
   ): boolean {
@@ -27,7 +27,8 @@ export default class BalanceTree {
     return pair.equals(root);
   }
 
-  public static toNode(index: number | BigNumber, account: string, amount: string): Buffer {
+  // keccak256(abi.encode(index, account, amount))
+  public static toNode(index: number | BigNumber, account: string, amount: BigNumber): Buffer {
     return Buffer.from(
       utils
         .solidityKeccak256(['uint256', 'address', 'uint256'], [index, account, amount])
@@ -36,8 +37,8 @@ export default class BalanceTree {
     );
   }
 
-  public getProof(index: number | BigNumber, account: string, amount: string): string[] {
-    const node = BalanceTree.toNode(index, account, amount);
-    return this.tree.getHexProof(node);
+  // returns the hex bytes32 values of the proof
+  public getProof(index: number | BigNumber, account: string, amount: BigNumber): string[] {
+    return this.tree.getHexProof(BalanceTree.toNode(index, account, amount));
   }
 }
