@@ -11,7 +11,7 @@
         "
         alt="Success"
       />
-      <h3 *noFrame="'horizontal'" class="modal__title">
+      <h3 class="modal__title">
         {{
           (type === 'instant-trade'
             ? 'notifications.successfullySentTransaction'
@@ -24,7 +24,6 @@
       <ng-container *ngIf="idPrefix !== 'crypto_tap_'">
         <ng-container *ngIf="ccrProviderType !== CROSS_CHAIN_PROVIDER.SYMBIOSIS">
           <div
-            *noFrame
             class="modal__footer-text"
             [innerHTML]="
               (type === 'cross-chain-routing' && ccrProviderType !== CROSS_CHAIN_PROVIDER.CELER
@@ -36,7 +35,7 @@
             "
           ></div>
           <ng-container *ngIf="type === 'instant-trade' && blockchain === BLOCKCHAIN_NAME.TRON">
-            <div *noFrame class="modal__footer-text && modal__footer-text_warning">
+            <div class="modal__footer-text && modal__footer-text_warning">
               Transaction can take up to 5 minutes.
             </div>
           </ng-container>
@@ -58,14 +57,6 @@
           </div>
         </ng-container>
       </ng-container>
-      <h3 *onlyFrame="'horizontal'" class="modal__title">
-        {{
-          (type === 'instant-trade'
-            ? 'modals.successTxModal.title'
-            : 'modals.successTxModal.ccrTitle'
-          ) | translate
-        }}
-      </h3>
       <app-rubic-button fullWidth appearance="secondary" (click)="onConfirm()">
         {{ 'common.OK' | translate }}
       </app-rubic-button>

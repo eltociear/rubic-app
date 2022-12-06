@@ -3,7 +3,6 @@ import { BehaviorSubject } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
 import { DOCUMENT } from '@angular/common';
 import { LOCAL_STORAGE } from '@ng-web-apis/common';
-import { IframeService } from 'src/app/core/services/iframe/iframe.service';
 import { Store } from 'src/app/core/services/store/models/store';
 
 @Injectable({
@@ -21,14 +20,13 @@ export class StoreService {
    * Is current app placed in iframe (In iframe localStorage using is not allow)
    */
   private get isIframe(): boolean {
-    return this.iframeService.isIframe;
+    return false;
   }
 
   constructor(
     private readonly cookieService: CookieService,
     @Inject(DOCUMENT) private document: Document,
-    @Inject(LOCAL_STORAGE) private localStorage: Storage,
-    private readonly iframeService: IframeService
+    @Inject(LOCAL_STORAGE) private localStorage: Storage
   ) {
     this.storageSubject$ = new BehaviorSubject<Store>(this.fetchData());
   }

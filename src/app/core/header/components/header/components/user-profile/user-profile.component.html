@@ -1,5 +1,4 @@
 <app-dropdown-selector
-  *noFrame
   (opened)="getDropdownStatus($event)"
   [dropdownButtonTemplate]="dropdownButtonTemplate"
   [dropdownOptionsTemplates]="dropdownItems"
@@ -15,39 +14,14 @@
       {{ userAddress.length > 20 ? (userAddress | shortAddress: 5:3) : userAddress }}
     </div>
 
-    <app-notification-badge
-      class="notification-counter notification-counter_profile"
-      *ngIf="(unreadTrades$ | async) && (currentUser$ | async) && !dropdownIsOpened"
-      size="xs"
-      color="red"
-      [value]="unreadTrades$ | async"
-    ></app-notification-badge>
-
     <img src="assets/images/icons/arrow-down.svg" width="11" height="7" alt="Dropdown arrow" />
   </div>
 </ng-template>
 
 <ng-template #dropdownOptionTemplate>
-  <a class="user-profile__dropdown-item" routerLink="promotion">
+  <a class="user-profile__dropdown-item" href="https://app.rubic.exchange/promotion">
     {{ 'navigation.promotion' | translate }}
   </a>
-</ng-template>
-
-<ng-template #dropdownOptionTemplate>
-  <button
-    *noFrame
-    class="user-profile__dropdown-item button-link"
-    (click)="openRecentTradesModal()"
-  >
-    {{ 'navigation.recentTrades' | translate }}
-    <app-notification-badge
-      class="notification-counter notification-counter_menu"
-      *ngIf="(unreadTrades$ | async) && (currentUser$ | async) && !dropdownIsOpened"
-      size="xs"
-      color="red"
-      [value]="unreadTrades$ | async"
-    ></app-notification-badge>
-  </button>
 </ng-template>
 
 <ng-template #dropdownOptionTemplate>
@@ -55,14 +29,3 @@
     {{ 'navigation.logout' | translate }}
   </button>
 </ng-template>
-
-<ng-container *onlyFrame>
-  <div class="user-profile">
-    <div class="user-profile__chain-icon" *ngIf="currentBlockchainIcon">
-      <img [src]="currentBlockchainIcon" alt="Current blockchain" width="25" height="25" />
-    </div>
-    <div class="user-profile__address">
-      {{ (currentUser$ | async)?.address | shortAddress: 5:3 }}
-    </div>
-  </div>
-</ng-container>

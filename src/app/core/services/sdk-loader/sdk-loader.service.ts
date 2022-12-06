@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@angular/core';
-import { RubicSdkService } from '@app/features/swaps/core/services/rubic-sdk-service/rubic-sdk.service';
-import { IframeService } from '@core/services/iframe/iframe.service';
+import { RubicSdkService } from '@app/core/services/rubic-sdk-service/rubic-sdk.service';
 import { AuthService } from '@core/services/auth/auth.service';
 import { filter, tap } from 'rxjs/operators';
 import { CHAIN_TYPE, WalletProvider, WalletProviderCore } from 'rubic-sdk';
@@ -13,7 +12,6 @@ import { WINDOW } from '@ng-web-apis/common';
 export class SdkLoaderService {
   constructor(
     private readonly sdkService: RubicSdkService,
-    private readonly iframeService: IframeService,
     private readonly authService: AuthService,
     private readonly walletConnectorService: WalletConnectorService,
     @Inject(WINDOW) private readonly window: Window
@@ -28,10 +26,7 @@ export class SdkLoaderService {
   }
 
   private async loadUser(): Promise<void> {
-    const { isIframe } = this.iframeService;
-    if (!isIframe) {
-      await this.authService.loadStorageUser();
-    }
+    await this.authService.loadStorageUser();
   }
 
   private subscribeOnAddressChange(): void {

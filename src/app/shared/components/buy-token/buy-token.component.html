@@ -1,12 +1,11 @@
 <app-rubic-button
-  *noFrame
   class="button_buy-token"
   [ngClass]="{ 'button_buy-token__custom': tokensType === 'custom' }"
   [appearance]="appearance"
   (click)="buyToken()"
 >
   <div class="button_buy-token-icon">
-    <img [src]="rubicIcon[theme$ | async]" alt="rubic" />
+    <img [src]="icon$ | async" alt="rubic" />
   </div>
   {{ (tokensType === 'default' ? 'buyTokens.default' : 'buyTokens.custom') | translate }}
 </app-rubic-button>

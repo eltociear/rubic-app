@@ -17,10 +17,7 @@ import { WalletConnectorService } from 'src/app/core/services/wallets/wallet-con
 import { NavigationItem } from 'src/app/core/header/components/header/components/rubic-menu/models/navigation-item';
 import { WINDOW } from '@ng-web-apis/common';
 import { NAVIGATION_LIST } from '@core/header/components/header/components/rubic-menu/models/navigation-list';
-import { GoogleTagManagerService } from '@core/services/google-tag-manager/google-tag-manager.service';
 import { HeaderStore } from '@app/core/header/services/header.store';
-import { RecentTradesStoreService } from '@app/core/services/recent-trades/recent-trades-store.service';
-import { CommonModalService } from '@app/core/services/modal/common-modal.service';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { takeUntil } from 'rxjs/operators';
 import { blockchainIcon } from '@shared/constants/blockchain/blockchain-icon';
@@ -49,18 +46,13 @@ export class RubicMenuComponent implements AfterViewInit {
 
   public readonly navigationList = NAVIGATION_LIST;
 
-  public readonly unreadTrades$ = this.recentTradesStoreService.unreadTrades$;
-
   public readonly isMobile = this.headerStore.isMobile;
 
   constructor(
     private authService: AuthService,
     private readonly cdr: ChangeDetectorRef,
     private readonly walletConnectorService: WalletConnectorService,
-    private readonly gtmService: GoogleTagManagerService,
     private readonly headerStore: HeaderStore,
-    private readonly recentTradesStoreService: RecentTradesStoreService,
-    private readonly commonModalService: CommonModalService,
     @Inject(WINDOW) private readonly window: Window,
     @Self() private readonly destroy$: TuiDestroyService
   ) {}
@@ -97,17 +89,8 @@ export class RubicMenuComponent implements AfterViewInit {
   }
 
   public handleButtonClick(item?: NavigationItem): void {
-    this.gtmService.reloadGtmSession();
     if (item) {
       this.window.open(item.link, '_blank');
     }
-  }
-
-  public openRecentTradesModal(): void {
-    this.commonModalService
-      .openRecentTradesModal({
-        size: this.headerStore.isMobile ? 'page' : ('xl' as 'l') // hack for custom modal size
-      })
-      .subscribe();
   }
 }

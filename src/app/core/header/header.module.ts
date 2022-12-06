@@ -23,7 +23,6 @@ import { MobileMenuTogglerComponent } from './components/header/components/mobil
 import { UserProfileComponent } from './components/header/components/user-profile/user-profile.component';
 import { HeaderComponent } from './components/header/header.component';
 import { RubicMenuComponent } from './components/header/components/rubic-menu/rubic-menu.component';
-import { IframeSettingsButtonComponent } from './components/header/components/iframe-settings-button/iframe-settings-button.component';
 import { HeaderSettingsComponent } from './components/header/components/header-settings/header-settings.component';
 import { SettingsElementComponent } from './components/header/components/settings-element/settings-element.component';
 import { SettingsListComponent } from './components/header/components/settings-list/settings-list.component';
@@ -35,7 +34,6 @@ import { ExternalLinkBannerComponent } from './components/header/components/exte
 import { BannerDirective } from './components/header/directives/banner.directive';
 import { TradingBannerComponent } from '@core/header/components/header/components/trading-banner/trading-banner.component';
 import { AppReferralBannerComponent } from './components/header/components/referral-banner/app-referral-banner.component';
-import { RecentTradesModule } from '../recent-trades/recent-trades.module';
 
 @NgModule({
   declarations: [
@@ -44,7 +42,6 @@ import { RecentTradesModule } from '../recent-trades/recent-trades.module';
     UserProfileComponent,
     MobileMenuTogglerComponent,
     RubicMenuComponent,
-    IframeSettingsButtonComponent,
     HeaderSettingsComponent,
     SettingsElementComponent,
     SettingsListComponent,
@@ -75,8 +72,7 @@ import { RecentTradesModule } from '../recent-trades/recent-trades.module';
     TuiDropdownControllerModule,
     TuiToggleModule,
     FormsModule,
-    TuiLoaderModule,
-    RecentTradesModule
+    TuiLoaderModule
   ],
   exports: [HeaderComponent, LoginButtonComponent]
 })

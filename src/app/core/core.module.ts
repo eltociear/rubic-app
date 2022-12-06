@@ -5,7 +5,6 @@ import { CookieService } from 'ngx-cookie-service';
 import { Router, RouterModule } from '@angular/router';
 import { HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { RubicFooterComponent } from 'src/app/core/rubic-footer/rubic-footer.component';
-import { SwapsModule } from 'src/app/features/swaps/swaps.module';
 import { WalletsModalModule } from '@core/wallets-modal/wallets-modal.module';
 import { NG_EVENT_PLUGINS } from '@tinkoff/ng-event-plugins';
 import { RubicExchangeInterceptor } from 'src/app/core/interceptors/rubic-exchange-interceptor';
@@ -18,10 +17,12 @@ import { httpLoaderFactory, sdkLoader } from './app.loaders';
 import { ErrorsModule } from './errors/errors.module';
 import { SdkLoaderService } from '@core/services/sdk-loader/sdk-loader.service';
 import * as Sentry from '@sentry/angular';
+import { RubicSdkService } from '@core/services/rubic-sdk-service/rubic-sdk.service';
 
 @NgModule({
   declarations: [MaintenanceComponent, RubicFooterComponent],
   providers: [
+    RubicSdkService,
     CookieService,
     {
       provide: APP_INITIALIZER,
@@ -69,8 +70,7 @@ import * as Sentry from '@sentry/angular';
         useFactory: httpLoaderFactory,
         deps: [HttpClient]
       }
-    }),
-    SwapsModule
+    })
   ],
   exports: [MaintenanceComponent, RouterModule, HeaderComponent, RubicFooterComponent]
 })

@@ -1,8 +1,5 @@
 import { WALLET_NAME } from '@core/wallets-modal/components/wallets-modal/models/wallet-name';
 import { LocalToken } from 'src/app/shared/models/tokens/local-token';
-import { SWAP_PROVIDER_TYPE } from '@features/swaps/features/swaps-form/models/swap-provider-type';
-import { FormSteps } from '@core/services/google-tag-manager/models/google-tag-manager';
-import { RecentTrade } from '@app/shared/models/my-trades/recent-trades.interface';
 
 export interface Store {
   /**
@@ -34,23 +31,6 @@ export interface Store {
    * Wallet target address.
    */
   targetAddress: string;
-
-  /**
-   * Passed form steps for instant-trade swap.
-   */
-  [SWAP_PROVIDER_TYPE.INSTANT_TRADE]: FormSteps;
-
-  /**
-   * Passed form steps for cross-chain swap.
-   */
-  [SWAP_PROVIDER_TYPE.CROSS_CHAIN_ROUTING]: FormSteps;
-
-  /**
-   * Latest cross-chain trades by address.
-   */
-  recentTrades: {
-    [address: string]: RecentTrade[];
-  };
 
   /**
    * Count of unread trades by address.

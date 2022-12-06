@@ -27,15 +27,10 @@ import {
   TuiTextfieldControllerModule
 } from '@taiga-ui/core';
 import { TuiActiveZoneModule } from '@taiga-ui/cdk';
-import { RubicTokensComponent } from 'src/app/shared/components/rubic-tokens/rubic-tokens.component';
 import { RubicLanguageSelectComponent } from 'src/app/core/header/components/header/components/rubic-language-select/rubic-language-select.component';
 import { GasIndicatorComponent } from 'src/app/shared/components/gas-indicator/gas-indicator.component';
 import { LetDirective } from 'src/app/shared/directives/let/let.directive';
-import { NoFrameDirective } from 'src/app/shared/directives/noFrame/no-frame.directive';
-import { OnlyFrameDirective } from 'src/app/shared/directives/onlyFrame/only-frame.directive';
 import { UsdPriceContainerComponent } from 'src/app/shared/components/usd-price-container/usd-price-container.component';
-import { PanelErrorContentComponent } from '@features/swaps/features/instant-trade/components/providers-panels/components/provider-panel/panel-error-content/panel-error-content.component';
-import { PanelContentComponent } from '@features/swaps/features/instant-trade/components/providers-panels/components/provider-panel/panel-content/panel-content.component';
 import { BigNumberFormatPipe } from './pipes/big-number-format.pipe';
 import { ScannerLinkPipe } from './pipes/scanner-link.pipe';
 import { SafetyLinkDirective } from './directives/safety-link/safety-link.directive';
@@ -48,7 +43,6 @@ import { RubicButtonCircleComponent } from './components/rubic-button-circle/rub
 import { RubicButtonComponent } from './components/rubic-button/rubic-button.component';
 import { ShortenAmountPipe } from './pipes/shorten-amount.pipe';
 import { RubicVolumeComponent } from './components/rubic-volume/rubic-volume.component';
-import { IframeBlockchainIndicatorComponent } from './components/iframe-blockchain-indicator/iframe-blockchain-indicator.component';
 import { ThemedIconPipe } from './pipes/themed-icon.pipe';
 import { SuccessTxModalComponent } from './components/success-tx-modal/success-tx-modal.component';
 import { SuccessTrxNotificationComponent } from './components/success-trx-notification/success-trx-notification.component';
@@ -64,7 +58,6 @@ import { StatusBadgeComponent } from './components/status-badge/status-badge.com
 import { ChipsComponent } from './components/chips/chips.component';
 import { ProgressTrxNotificationComponent } from '@shared/components/progress-trx-notification/progress-trx-notification.component';
 import { SymbiosisWarningTxModalComponent } from './components/symbiosis-warning-tx-modal/symbiosis-warning-tx-modal.component';
-import { IframeLogoutButtonComponent } from '@shared/components/iframe-logout-button/iframe-logout-button.component';
 import { TimeGuard } from './guards/time.guard';
 import { AutoSlippageWarningModalComponent } from '@shared/components/via-slippage-warning-modal/auto-slippage-warning-modal.component';
 
@@ -78,28 +71,22 @@ import { AutoSlippageWarningModalComponent } from '@shared/components/via-slippa
     IconButtonComponent,
     RubicLanguageSelectComponent,
     RubicVolumeComponent,
-    RubicTokensComponent,
     SuccessTxModalComponent,
     SuccessTrxNotificationComponent,
     GasIndicatorComponent,
-    PanelErrorContentComponent,
-    PanelContentComponent,
     UsdPriceContainerComponent,
     RotatingIconComponent,
     InfoHintComponent,
     BuyTokenComponent,
-    IframeBlockchainIndicatorComponent,
     RubicContainerComponent,
     RotatingIconComponent,
     InfoHintComponent,
     NotificationBadgeComponent,
     CopyContainerComponent,
-    IframeBlockchainIndicatorComponent,
     StatusBadgeComponent,
     ChipsComponent,
     ProgressTrxNotificationComponent,
     SymbiosisWarningTxModalComponent,
-    IframeLogoutButtonComponent,
     AutoSlippageWarningModalComponent,
     // Pipes.
     BigNumberFormatPipe,
@@ -113,9 +100,7 @@ import { AutoSlippageWarningModalComponent } from '@shared/components/via-slippa
     // Directives.
     SafetyLinkDirective,
     TokenAmountDirective,
-    LetDirective,
-    NoFrameDirective,
-    OnlyFrameDirective
+    LetDirective
   ],
   imports: [
     CommonModule,
@@ -163,15 +148,9 @@ import { AutoSlippageWarningModalComponent } from '@shared/components/via-slippa
     FalsyPipe,
     WithRoundPipe,
     SafetyLinkDirective,
-    RubicTokensComponent,
     TokenAmountDirective,
     GasIndicatorComponent,
-    PanelErrorContentComponent,
-    PanelContentComponent,
     LetDirective,
-    NoFrameDirective,
-    OnlyFrameDirective,
-    IframeBlockchainIndicatorComponent,
     ThemedIconPipe,
     UsdPriceContainerComponent,
     RotatingIconComponent,
@@ -182,8 +161,7 @@ import { AutoSlippageWarningModalComponent } from '@shared/components/via-slippa
     CopyContainerComponent,
     FunctionCallPipe,
     StatusBadgeComponent,
-    ChipsComponent,
-    IframeLogoutButtonComponent
+    ChipsComponent
   ],
   providers: [ScannerLinkPipe, WithRoundPipe, BigNumberFormatPipe, TimeGuard]
 })

@@ -21,8 +21,6 @@ import { BrowserService } from 'src/app/core/services/browser/browser.service';
 import { BROWSER } from '@shared/models/browser/browser';
 import { WalletProvider } from '@core/wallets-modal/components/wallets-modal/models/types';
 import { HeaderStore } from 'src/app/core/header/services/header.store';
-import { IframeWalletsWarningComponent } from 'src/app/core/wallets-modal/components/iframe-wallets-warning/iframe-wallets-warning.component';
-import { IframeService } from 'src/app/core/services/iframe/iframe.service';
 import { WALLET_NAME } from '@core/wallets-modal/components/wallets-modal/models/wallet-name';
 import { PROVIDERS_LIST } from '@core/wallets-modal/components/wallets-modal/models/providers';
 import { RubicWindow } from '@shared/utils/rubic-window';
@@ -51,9 +49,7 @@ export class WalletsModalComponent implements OnInit {
         )
       : browserSupportedProviders.filter(provider => !provider.mobileOnly);
 
-    return this.iframeService.isIframe && this.iframeService.device === 'mobile'
-      ? deviceFiltered.filter(provider => provider.supportsInVerticalMobileIframe)
-      : deviceFiltered;
+    return deviceFiltered;
   }
 
   public get isMobile(): boolean {
@@ -65,12 +61,8 @@ export class WalletsModalComponent implements OnInit {
 
   private readonly metamaskAppLink = 'https://metamask.app.link/dapp/';
 
-  public readonly shouldRenderAsLink = (provider: WALLET_NAME): boolean => {
-    return (
-      this.iframeService.isIframe &&
-      this.iframeService.device === 'mobile' &&
-      provider === WALLET_NAME.WALLET_LINK
-    );
+  public readonly shouldRenderAsLink = (_provider: WALLET_NAME): boolean => {
+    return false;
   };
 
   constructor(
@@ -84,8 +76,7 @@ export class WalletsModalComponent implements OnInit {
     private readonly authService: AuthService,
     private readonly headerStore: HeaderStore,
     private readonly cdr: ChangeDetectorRef,
-    private readonly browserService: BrowserService,
-    private readonly iframeService: IframeService
+    private readonly browserService: BrowserService
   ) {
     this.walletsLoading$ = this.headerStore.getWalletsLoadingStatus();
     this.mobileDisplayStatus$ = this.headerStore.getMobileDisplayStatus();
@@ -125,18 +116,6 @@ export class WalletsModalComponent implements OnInit {
   }
 
   public async connectProvider(provider: WALLET_NAME): Promise<void> {
-    const providerInfo = this.allProviders.find(elem => elem.value === provider);
-    if (
-      (this.iframeService.iframeAppearance === 'horizontal' &&
-        !providerInfo.supportsInHorizontalIframe) ||
-      (this.iframeService.iframeAppearance === 'vertical' && !providerInfo.supportsInVerticalIframe)
-    ) {
-      if (this.iframeService.device === 'desktop') {
-        this.openIframeWarning();
-        return;
-      }
-    }
-
     if (this.browserService.currentBrowser === BROWSER.MOBILE) {
       const redirected = this.deepLinkRedirectIfSupported(provider);
       if (redirected) {
@@ -187,17 +166,5 @@ export class WalletsModalComponent implements OnInit {
   public close(): void {
     this.headerStore.setWalletsLoadingStatus(false);
     this.context.completeWith();
-  }
-
-  private openIframeWarning(): void {
-    this.dialogService
-      .open<boolean>(new PolymorpheusComponent(IframeWalletsWarningComponent, this.injector), {
-        size: 'fullscreen'
-      })
-      .subscribe(confirm => {
-        if (confirm) {
-          this.connectProvider(WALLET_NAME.METAMASK);
-        }
-      });
   }
 }

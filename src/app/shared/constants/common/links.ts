@@ -4,11 +4,9 @@ export enum ROUTE_PATH {
   ABOUT = 'about',
   CONTRACTS = 'contracts',
   FAQ = 'faq',
-  TRADES = 'my-trades',
   STAKING = 'staking',
   PROMOTION = 'promotion',
-  REST = '**',
-  AIRDROP = 'airdrop'
+  REST = '**'
 }
 
 export enum EXTERNAL_LINKS {

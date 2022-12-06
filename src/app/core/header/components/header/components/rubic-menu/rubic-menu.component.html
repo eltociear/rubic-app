@@ -6,13 +6,6 @@
         <div class="burger-menu__line"></div>
         <div class="burger-menu__line"></div>
       </div>
-      <app-notification-badge
-        class="notification-counter"
-        *ngIf="isMobile && (unreadTrades$ | async) && (currentUser$ | async) && !isOpened"
-        size="xs"
-        color="red"
-        [value]="unreadTrades$ | async"
-      ></app-notification-badge>
     </app-rubic-button-circle>
   </div>
 </tui-hosted-dropdown>
@@ -49,14 +42,18 @@
 
       <tui-opt-group class="rubic-menu__mobile">
         <a
-          (click)="menuClickHandler('cross-chain')"
+          (click)="menuClickHandler()"
           [class.data-list__link_active]="crossChainActive"
           class="data-list__link"
         >
           <button tuiOption class="data-list__option">Swaps</button>
         </a>
 
-        <a routerLink="/staking" routerLinkActive="data-list__link_active" class="data-list__link">
+        <a
+          href="https://app.rubic.exchange/staking"
+          routerLinkActive="data-list__link_active"
+          class="data-list__link"
+        >
           <button tuiOption class="data-list__option">
             {{ 'navigation.stakingLp' | translate }}
           </button>
@@ -76,24 +73,11 @@
           {{ (currentUser$ | async)?.address | shortAddress: 5:3 }}
         </button>
 
-        <a class="data-list__link data-list__link_my-trades" (click)="openRecentTradesModal()">
-          <button tuiOption class="data-list__option">
-            {{ 'navigation.recentTrades' | translate }}
-          </button>
-          <app-notification-badge
-            class="notification-counter notification-counter_menu"
-            *ngIf="(unreadTrades$ | async) && (currentUser$ | async) && isOpened"
-            size="xs"
-            color="red"
-            [value]="unreadTrades$ | async"
-          ></app-notification-badge>
-        </a>
-
         <a
-          routerLink="promotion"
+          href="https://app.rubic.exchange/promotion"
           routerLinkActive="data-list__link_active"
           class="data-list__link"
-          (click)="menuClickHandler('promotion')"
+          (click)="menuClickHandler()"
         >
           <button tuiOption class="data-list__option">
             {{ 'navigation.promotion' | translate }}

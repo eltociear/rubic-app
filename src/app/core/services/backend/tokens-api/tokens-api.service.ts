@@ -7,8 +7,7 @@ import {
   BackendBlockchain
 } from '@shared/constants/blockchain/backend-blockchains';
 import { Token } from '@shared/models/tokens/token';
-import { catchError, debounceTime, map, switchMap, tap } from 'rxjs/operators';
-import { IframeService } from 'src/app/core/services/iframe/iframe.service';
+import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import {
   BackendToken,
   DEFAULT_PAGE_SIZE,
@@ -41,7 +40,6 @@ export class TokensApiService {
 
   constructor(
     private readonly httpService: HttpService,
-    private readonly iframeService: IframeService,
     private readonly authService: AuthService
   ) {}
 
@@ -69,17 +67,10 @@ export class TokensApiService {
    * @return Observable<List<Token>> Tokens list.
    */
   public getTokensList(
-    params: { [p: string]: unknown },
+    _params: { [p: string]: unknown },
     tokensNetworkState$: BehaviorSubject<TokensNetworkState>
   ): Observable<List<Token>> {
-    return this.iframeService.isIframe$.pipe(
-      debounceTime(50),
-      switchMap(isIframe => {
-        return isIframe
-          ? this.fetchIframeTokens(params)
-          : this.fetchBasicTokens(tokensNetworkState$);
-      })
-    );
+    return this.fetchBasicTokens(tokensNetworkState$);
   }
 
   /**

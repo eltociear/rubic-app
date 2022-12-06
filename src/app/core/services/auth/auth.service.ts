@@ -6,7 +6,6 @@ import { HeaderStore } from '../../header/services/header.store';
 import { UserInterface } from './models/user.interface';
 import { WALLET_NAME } from '@core/wallets-modal/components/wallets-modal/models/wallet-name';
 import { compareAddresses } from '@shared/utils/utils';
-import { GoogleTagManagerService } from '@core/services/google-tag-manager/google-tag-manager.service';
 import { CHAIN_TYPE } from 'rubic-sdk';
 
 /**
@@ -35,8 +34,7 @@ export class AuthService {
   constructor(
     private readonly headerStore: HeaderStore,
     private readonly walletConnectorService: WalletConnectorService,
-    private readonly errorService: ErrorsService,
-    private readonly gtmService: GoogleTagManagerService
+    private readonly errorService: ErrorsService
   ) {
     this.initSubscriptions();
   }
@@ -82,10 +80,6 @@ export class AuthService {
       await this.walletConnectorService.activate();
       const { address, chainType } = this.walletConnectorService;
       this.setCurrentUser(address, chainType);
-
-      if (walletName) {
-        this.gtmService.fireConnectWalletEvent(walletName);
-      }
     } catch (err) {
       this.walletConnectorService.deactivate();
       this._currentUser$.next(null);

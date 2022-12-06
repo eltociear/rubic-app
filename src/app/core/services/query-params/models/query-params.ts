@@ -1,5 +1,4 @@
 import { BlockchainName } from 'rubic-sdk';
-import { IframeAppearance } from '@core/services/iframe/models/iframe-appearance';
 import { SupportedLanguages } from '@shared/models/languages/supported-languages';
 
 export type AdditionalTokens =
@@ -18,8 +17,6 @@ interface AllQueryParams {
   toChain: BlockchainName;
   amount: string;
 
-  // iframe
-  iframe: IframeAppearance;
   device: 'mobile' | 'desktop';
   hideSelectionFrom: string;
   hideSelectionTo: string;

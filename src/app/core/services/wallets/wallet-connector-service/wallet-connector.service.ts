@@ -13,7 +13,6 @@ import { TUI_IS_IOS } from '@taiga-ui/cdk';
 import { CommonWalletAdapter } from '@core/services/wallets/wallets-adapters/common-wallet-adapter';
 import { TrustWalletAdapter } from '@core/services/wallets/wallets-adapters/evm/trust-wallet-adapter';
 import { WALLET_NAME } from '@core/wallets-modal/components/wallets-modal/models/wallet-name';
-import { IframeService } from '@core/services/iframe/iframe.service';
 import { BitkeepWalletAdapter } from 'src/app/core/services/wallets/wallets-adapters/evm/bitkeep-wallet-adapter';
 import {
   BLOCKCHAIN_NAME,
@@ -24,7 +23,6 @@ import {
   EvmBlockchainName,
   nativeTokensList
 } from 'rubic-sdk';
-import { RubicSdkService } from '@features/swaps/core/services/rubic-sdk-service/rubic-sdk.service';
 import { TronLinkAdapter } from '@core/services/wallets/wallets-adapters/tron/tron-link-adapter';
 import { blockchainScanner } from '@shared/constants/blockchain/blockchain-scanner';
 import { rpcList } from '@shared/constants/blockchain/rpc-list';
@@ -66,8 +64,6 @@ export class WalletConnectorService {
     private readonly storeService: StoreService,
     private readonly errorService: ErrorsService,
     private readonly httpService: HttpService,
-    private readonly iframeService: IframeService,
-    private readonly sdk: RubicSdkService,
     @Inject(WINDOW) private readonly window: RubicWindow,
     @Inject(TUI_IS_IOS) private readonly isIos: boolean,
     private readonly zone: NgZone
