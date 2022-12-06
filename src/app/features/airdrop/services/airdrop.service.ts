@@ -68,7 +68,9 @@ export class AirdropService {
       return null;
     }
 
-    return this.merkleTree.getProof(desiredNode.index, address, desiredNode.amount);
+    const proof = this.merkleTree.getProof(desiredNode.index, address, desiredNode.amount);
+    console.log(proof);
+    return proof;
   }
 
   @tuiPure
