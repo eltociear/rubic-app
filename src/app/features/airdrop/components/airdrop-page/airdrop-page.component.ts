@@ -9,7 +9,9 @@ import { map } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AirdropPageComponent {
-  public readonly isUserLoggedIn = this.authService.currentUser$.pipe(map(user => user?.address));
+  public readonly isUserLoggedIn$ = this.authService.currentUser$.pipe(
+    map(user => Boolean(user?.address))
+  );
 
   constructor(private readonly authService: AuthService) {}
 }

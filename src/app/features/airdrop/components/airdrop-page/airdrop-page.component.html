@@ -9,9 +9,10 @@
 
   <app-airdrop-address></app-airdrop-address>
 
-  <ng-container *ngIf="isUserLoggedIn | async; else loginButton">
+  <ng-container *ngIf="isUserLoggedIn$ | async; else loginButton">
     <app-claim-button></app-claim-button>
   </ng-container>
+
   <ng-template #loginButton>
     <app-connect-wallet-button></app-connect-wallet-button>
   </ng-template>
