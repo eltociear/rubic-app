@@ -3,11 +3,10 @@ import { BehaviorSubject, forkJoin, from, Observable, of } from 'rxjs';
 import { List } from 'immutable';
 import {
   FROM_BACKEND_BLOCKCHAINS,
-  TO_BACKEND_BLOCKCHAINS,
-  BackendBlockchain
+  TO_BACKEND_BLOCKCHAINS
 } from '@shared/constants/blockchain/backend-blockchains';
 import { Token } from '@shared/models/tokens/token';
-import { catchError, map, switchMap, tap } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import {
   BackendToken,
   DEFAULT_PAGE_SIZE,
@@ -24,7 +23,6 @@ import { HttpService } from '../../http/http.service';
 import { AuthService } from '../../auth/auth.service';
 import { BLOCKCHAIN_NAME, BlockchainName, Injector } from 'rubic-sdk';
 import { EMPTY_ADDRESS } from '@shared/constants/blockchain/empty-address';
-import { defaultTokens } from './models/default-tokens';
 import { ENVIRONMENT } from 'src/environments/environment';
 
 /**
@@ -175,56 +173,12 @@ export class TokensApiService {
    * Fetches basic tokens from backend.
    */
   private fetchBasicTokens(
-    tokensNetworkState$: BehaviorSubject<TokensNetworkState>
+    _tokensNetworkState$: BehaviorSubject<TokensNetworkState>
   ): Observable<List<Token>> {
-    const options = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
-    const blockchainsToFetch = Object.values(TO_BACKEND_BLOCKCHAINS);
-
-    const requests$ = blockchainsToFetch.map((network: BackendBlockchain) =>
-      this.httpService
-        .get<TokensBackendResponse>(ENDPOINTS.TOKENS, { ...options, network }, this.tokensApiUrl)
-        .pipe(
-          tap(networkTokens => {
-            const blockchain = FROM_BACKEND_BLOCKCHAINS[network];
-            if (networkTokens?.results) {
-              tokensNetworkState$.next({
-                ...tokensNetworkState$.value,
-                [blockchain]: {
-                  ...tokensNetworkState$.value[blockchain],
-                  page: options.page,
-                  maxPage: Math.ceil(networkTokens.count / options.pageSize)
-                }
-              });
-            }
-          }),
-          catchError(() => {
-            return of(null);
-          })
-        )
-    );
-    const backendTokens$ = forkJoin(requests$).pipe(
-      map(results => {
-        if (results.every(el => el === null)) {
-          this.needRefetchTokens = true;
-          return List(
-            blockchainsToFetch
-              .map(blockchain => defaultTokens[FROM_BACKEND_BLOCKCHAINS[blockchain]])
-              .filter(tokens => tokens.length > 0)
-              .flat()
-          );
-        }
-
-        this.needRefetchTokens = false;
-        const backendTokens = results.flatMap(el => el?.results || []);
-        return TokensApiService.prepareTokens(backendTokens);
-      })
-    );
-
     const staticTokens$ = this.fetchStaticTokens();
-
-    return forkJoin([backendTokens$, staticTokens$]).pipe(
-      map(([backendTokens, staticTokens]) => {
-        return backendTokens.concat(staticTokens);
+    return forkJoin([staticTokens$]).pipe(
+      map(([staticTokens]) => {
+        return List(staticTokens);
       })
     );
   }

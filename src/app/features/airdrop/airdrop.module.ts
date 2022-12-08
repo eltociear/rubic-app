@@ -7,9 +7,15 @@ import { AirdropAddressComponent } from './components/airdrop-address/airdrop-ad
 import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '@shared/shared.module';
 import { ClaimButtonComponent } from './components/claim-button/claim-button.component';
+import { RubicTokenComponent } from './components/rubic-token/rubic-token.component';
 
 @NgModule({
-  declarations: [AirdropPageComponent, AirdropAddressComponent, ClaimButtonComponent],
+  declarations: [
+    AirdropPageComponent,
+    AirdropAddressComponent,
+    ClaimButtonComponent,
+    RubicTokenComponent
+  ],
   imports: [CommonModule, AirdropRoutingModule, TuiInputModule, ReactiveFormsModule, SharedModule]
 })
 export class AirdropModule {}

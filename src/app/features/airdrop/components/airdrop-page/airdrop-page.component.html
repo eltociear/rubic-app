@@ -1,21 +1,12 @@
 <div class="merkle">
-  <h1>Merkle Drop Token Claim</h1>
+  <h1>Rubic tokens Claim</h1>
   <p>
     Using this website, you can check if any of your addresses are eligible to withdraw IQONIQ
     Tokens (IQQ), create the needed Merkle proofs or claim your tokens directly via a web3
     integration. Please note that claiming IQQ is subject to these
   </p>
-  <a href="">Terms and Conditions.</a>
+  <app-rubic-token></app-rubic-token>
 
   <app-airdrop-address></app-airdrop-address>
-
-  <ng-container *ngIf="isUserLoggedIn$ | async; else loginButton">
-    <app-claim-button></app-claim-button>
-  </ng-container>
-
-  <ng-template #loginButton>
-    <app-connect-wallet-button></app-connect-wallet-button>
-  </ng-template>
+  <app-claim-button></app-claim-button>
 </div>
-
-<router-outlet></router-outlet>

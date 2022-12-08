@@ -3,6 +3,7 @@ import { BlockchainsInfo, CHAIN_TYPE, EvmBlockchainName } from 'rubic-sdk';
 import { RubicAny } from '@shared/models/utility-types/rubic-any';
 import { AddEvmChainParams } from '@core/services/wallets/models/add-evm-chain-params';
 import { fromEvent } from 'rxjs';
+import { BlockchainToken } from '@shared/models/tokens/blockchain-token';
 
 export abstract class EvmWalletAdapter<T = RubicAny> extends CommonWalletAdapter<T> {
   public readonly chainType = CHAIN_TYPE.EVM;
@@ -31,6 +32,23 @@ export abstract class EvmWalletAdapter<T = RubicAny> extends CommonWalletAdapter
         });
       }
     );
+  }
+
+  public async addToken(
+    token: Omit<BlockchainToken, 'blockchain'> & { image: string }
+  ): Promise<void | never> {
+    return (this.wallet as RubicAny).request({
+      method: 'metamask_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: token.address,
+          symbol: token.symbol,
+          decimals: token.decimals,
+          image: token.image
+        }
+      }
+    });
   }
 
   public async switchChain(chainId: string): Promise<void | never> {

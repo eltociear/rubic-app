@@ -29,6 +29,7 @@ import { rpcList } from '@shared/constants/blockchain/rpc-list';
 import { blockchainIcon } from '@shared/constants/blockchain/blockchain-icon';
 import { defaultBlockchainData } from '@core/services/wallets/wallet-connector-service/constants/default-blockchain-data';
 import { EvmWalletAdapter } from '@core/services/wallets/wallets-adapters/evm/common/evm-wallet-adapter';
+import { BlockchainToken } from '@shared/models/tokens/blockchain-token';
 
 @Injectable({
   providedIn: 'root'
@@ -201,5 +202,17 @@ export class WalletConnectorService {
       iconUrls: [`${this.window.location.origin}/${icon}`]
     };
     await (this.provider as EvmWalletAdapter).addChain(params);
+  }
+
+  public async addToken(
+    token: Omit<BlockchainToken, 'blockchain'> & { image: string }
+  ): Promise<boolean> {
+    try {
+      await (this.provider as EvmWalletAdapter).addToken(token);
+      return true;
+    } catch (error) {
+      this.errorService.catch(error);
+      return false;
+    }
   }
 }

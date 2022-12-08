@@ -1,0 +1,15 @@
+img {
+  width: 16px;
+  height: 16px;
+  margin: 0 5px 0 10px;
+}
+
+p,
+span {
+  display: flex;
+  align-items: center;
+}
+
+span {
+  cursor: pointer;
+}

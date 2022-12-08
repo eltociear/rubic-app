@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ENVIRONMENT } from 'src/environments/environment';
 import {
   BackendBlockchain,
   FROM_BACKEND_BLOCKCHAINS
 } from '@app/shared/constants/blockchain/backend-blockchains';
-import { BehaviorSubject, catchError, map, Observable, of, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import {
   BlockchainName,
   CROSS_CHAIN_TRADE_TYPE,
@@ -18,21 +17,6 @@ import { FROM_BACKEND_CROSS_CHAIN_PROVIDERS } from '../cross-chain-routing-api/c
 interface CrossChainProviderStatus {
   active: boolean;
   disabledProviders: string[];
-}
-
-interface PlatformConfig {
-  server_is_active: boolean;
-  networks: {
-    [chain: string]: boolean;
-  };
-  cross_chain_providers: {
-    [provider: string]: CrossChainProviderStatus;
-  };
-  on_chain_providers: {
-    proxy: {
-      active: boolean;
-    };
-  };
 }
 
 interface DisabledBridgeTypes {
@@ -79,17 +63,7 @@ export class PlatformConfigurationService {
   constructor(private httpClient: HttpClient) {}
 
   public loadPlatformConfig(): Observable<boolean> {
-    return this.httpClient.get<PlatformConfig>(`${ENVIRONMENT.apiBaseUrl}/info/status_info`).pipe(
-      tap(response => {
-        if (response.server_is_active === true) {
-          this._availableBlockchains$.next(this.mapAvailableBlockchains(response.networks));
-          this._disabledProviders$.next(this.mapDisabledProviders(response.cross_chain_providers));
-          this._useOnChainProxy$.next(response.on_chain_providers.proxy.active);
-        }
-      }),
-      map(response => response.server_is_active),
-      catchError(() => of(true))
-    );
+    return of(true);
   }
 
   public isAvailableBlockchain(blockchain: BlockchainName): boolean {
