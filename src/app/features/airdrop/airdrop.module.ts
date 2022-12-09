@@ -8,6 +8,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { SharedModule } from '@shared/shared.module';
 import { ClaimButtonComponent } from './components/claim-button/claim-button.component';
 import { RubicTokenComponent } from './components/rubic-token/rubic-token.component';
+import { InlineSVGModule } from 'ng-inline-svg-2';
+import { TuiTextfieldControllerModule } from '@taiga-ui/core';
 
 @NgModule({
   declarations: [
@@ -16,6 +18,14 @@ import { RubicTokenComponent } from './components/rubic-token/rubic-token.compon
     ClaimButtonComponent,
     RubicTokenComponent
   ],
-  imports: [CommonModule, AirdropRoutingModule, TuiInputModule, ReactiveFormsModule, SharedModule]
+  imports: [
+    CommonModule,
+    AirdropRoutingModule,
+    TuiInputModule,
+    ReactiveFormsModule,
+    SharedModule,
+    InlineSVGModule,
+    TuiTextfieldControllerModule
+  ]
 })
 export class AirdropModule {}

@@ -617,5 +617,28 @@
   },
   "blockchainSwap": {
     "to": "至"
+  },
+  "airdrop": {
+    "title": "Rubic tokens Claim",
+    "description": "Using this website, you can check if any of your addresses are eligible to withdraw IQONIQ. Tokens (IQQ), create the needed Merkle proofs or claim your tokens directly via a web3. integration. Please note that claiming IQQ is subject to these",
+    "enterAddress": "Enter your Ethereum address",
+    "goodAddress": "Yes, this address is eligible for a token claim",
+    "claimedTokens": "token claimable out",
+    "badAddress": "Sorry, this address is not eligible to claim any tokens",
+    "button": {
+      "login": "Connect Wallet",
+      "claim": "Claim Tokens",
+      "wrongAddressError": "Entered address is incorrect",
+      "emptyError": "Enter tokens receiver address",
+      "changeNetwork": "Change Network to Ethereum"
+    },
+    "tokenDescription": "In case of success claim, you will get new",
+    "notification": {
+      "progress": "Claim in progress",
+      "success": "Claim in success",
+      "paused": "The contract is in pause now. Try again later",
+      "claimed": "Tokens are claimed already, check your wallet",
+      "unknown": "Oops, something went wrong, please try again"
+    }
   }
 }

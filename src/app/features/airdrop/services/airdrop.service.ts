@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import AirdropMerkleTree from '../constants/airdrop-merkle-tree.json';
+import sourceAirdropMerkle from '../constants/airdrop-merkle-tree.json';
 import BalanceTree from '@features/airdrop/utils/balance-tree';
 import BigNumber from 'bignumber.js';
 import { BLOCKCHAIN_NAME, CHAIN_TYPE, Injector, Web3Pure } from 'rubic-sdk';
@@ -16,6 +16,8 @@ import { TuiNotification } from '@taiga-ui/core';
 import { RubicError } from '@core/errors/models/rubic-error';
 import { WalletConnectorService } from '@core/services/wallets/wallet-connector-service/wallet-connector.service';
 import { RubicSdkService } from '@core/services/rubic-sdk-service/rubic-sdk.service';
+import { TranslateService } from '@ngx-translate/core';
+import { EvmWeb3Pure } from 'rubic-sdk/lib/core/blockchain/web3-pure/typed-web3-pure/evm-web3-pure/evm-web3-pure';
 
 interface SourceNode {
   index: number;
@@ -26,7 +28,7 @@ interface SourceNode {
   providedIn: 'root'
 })
 export class AirdropService {
-  private readonly merkleTreeSource: { [Key: string]: SourceNode } = AirdropMerkleTree;
+  private readonly merkleTreeSource: { [Key: string]: SourceNode } = sourceAirdropMerkle;
 
   private readonly merkleTree = new BalanceTree(
     Object.entries(this.merkleTreeSource).map(([address, { balance }]) => ({
@@ -60,7 +62,8 @@ export class AirdropService {
   constructor(
     private readonly notificationsService: NotificationsService,
     private readonly walletConnectorService: WalletConnectorService,
-    private readonly sdkService: RubicSdkService
+    private readonly sdkService: RubicSdkService,
+    private readonly translateService: TranslateService
   ) {}
 
   @tuiPure
@@ -85,7 +88,7 @@ export class AirdropService {
       return null;
     }
 
-    const node = this.merkleTreeSource?.[address];
+    const node = this.merkleTreeSource?.[EvmWeb3Pure.toChecksumAddress(address)];
     if (!node) {
       return null;
     }
@@ -124,17 +127,23 @@ export class AirdropService {
         [node.index, node.account, node.amount, proof],
         {
           onTransactionHash: _hash => {
-            claimInProgressNotification = this.notificationsService.show('Claim in progress', {
-              status: TuiNotification.Info,
-              autoClose: false
-            });
+            claimInProgressNotification = this.notificationsService.show(
+              this.translateService.instant('airdrop.notification.progress'),
+              {
+                status: TuiNotification.Info,
+                autoClose: false
+              }
+            );
           }
         }
       );
-      this.notificationsService.show('Claim in success', {
-        status: TuiNotification.Success,
-        autoClose: 10000
-      });
+      this.notificationsService.show(
+        this.translateService.instant('airdrop.notification.success'),
+        {
+          status: TuiNotification.Success,
+          autoClose: 10000
+        }
+      );
     } catch (err) {
       this.parseError(err);
     } finally {
@@ -145,7 +154,7 @@ export class AirdropService {
 
   private async checkPause(): Promise<void> {
     const isPaused = await Injector.web3PublicService
-      .getWeb3Public(BLOCKCHAIN_NAME.ETHEREUM)
+      .getWeb3Public(BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN)
       .callContractMethod(this.airDropContractAddress, airdropContractAbi, 'paused', []);
     if (isPaused) {
       throw new RubicError('paused');
@@ -154,7 +163,7 @@ export class AirdropService {
 
   private async checkClaimed(index: number): Promise<void> {
     const isPaused = await Injector.web3PublicService
-      .getWeb3Public(BLOCKCHAIN_NAME.ETHEREUM)
+      .getWeb3Public(BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN)
       .callContractMethod(this.airDropContractAddress, airdropContractAbi, 'isClaimed', [index]);
     if (isPaused) {
       throw new RubicError('claimed');
@@ -164,7 +173,7 @@ export class AirdropService {
   public async changeNetwork(): Promise<void> {
     this._claimLoading$.next(true);
     try {
-      await this.walletConnectorService.switchChain(BLOCKCHAIN_NAME.ETHEREUM);
+      await this.walletConnectorService.switchChain(BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN);
       await lastValueFrom(this.sdkService.sdkLoading$.pipe(first(el => el === false)));
     } finally {
       this._claimLoading$.next(false);
@@ -176,14 +185,14 @@ export class AirdropService {
       let label: string;
       let status: TuiNotification;
       if (err.message === 'paused') {
-        label = 'The contract is in puase now. Try again later';
+        label = this.translateService.instant('airdrop.notification.paused');
         status = TuiNotification.Warning;
       }
       if (err.message === 'claimed') {
-        label = 'Tokens alreadt claimed, check your wallet';
+        label = this.translateService.instant('airdrop.notification.claimed');
         status = TuiNotification.Warning;
       }
-      label = 'Oops, something went wrong, please try again';
+      label = this.translateService.instant('airdrop.notification.unknown');
       status = TuiNotification.Error;
       this.notificationsService.show(label, { autoClose: 10000, status });
     }

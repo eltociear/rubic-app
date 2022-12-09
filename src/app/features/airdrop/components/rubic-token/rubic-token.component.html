@@ -1,6 +1,8 @@
 <p>
-  In case of success claim, you will get new
-  <span (click)="addRubicToken()"
-    ><img src="assets/images/icons/header/rubic-light.svg" alt="Rubic token" />RBC token</span
-  >
+  {{ 'airdrop.tokenDescription' | translate }}
+  <app-rubic-button size="s">
+    <span (click)="addRubicToken()">
+      <img src="assets/images/icons/header/rubic-light.svg" alt="Rubic token" />RBC token
+    </span>
+  </app-rubic-button>
 </p>

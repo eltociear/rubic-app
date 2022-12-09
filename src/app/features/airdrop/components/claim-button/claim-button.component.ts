@@ -17,11 +17,11 @@ type ButtonState = 'login' | 'emptyError' | 'wrongAddressError' | 'changeNetwork
 })
 export class ClaimButtonComponent {
   public readonly buttonStateNameMap: Record<ButtonState, string> = {
-    login: 'Connect Wallet',
-    claim: 'Claim Tokens',
-    wrongAddressError: `Entered address is incorrect `,
-    emptyError: 'Enter tokens receiver address',
-    changeNetwork: 'Change Network to Ethereum'
+    login: 'airdrop.button.login',
+    claim: 'airdrop.button.claim',
+    wrongAddressError: 'airdrop.button.wrongAddressError',
+    emptyError: 'airdrop.button.emptyError',
+    changeNetwork: 'airdrop.button.changeNetwork'
   };
 
   public buttonState$: Observable<ButtonState> = this.airdropService.isValid$.pipe(
@@ -31,7 +31,7 @@ export class ClaimButtonComponent {
       if (!user?.address) {
         return 'login';
       }
-      if (!network || network !== BLOCKCHAIN_NAME.ETHEREUM) {
+      if (!network || network !== BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN) {
         return 'changeNetwork';
       }
       if (isValid) {

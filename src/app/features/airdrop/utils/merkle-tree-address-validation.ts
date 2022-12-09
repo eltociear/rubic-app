@@ -14,7 +14,7 @@ export function checkAddressValidity(airdropService: AirdropService): ValidatorF
       return { wrongAddress: address };
     }
 
-    const proof = airdropService.getProofByAddress(address);
+    const proof = airdropService.getProofByAddress(EvmWeb3Pure.toChecksumAddress(address));
 
     return proof ? null : { wrongAddress: address };
   };

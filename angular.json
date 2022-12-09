@@ -187,6 +187,9 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
+            "exclud": [
+              "src/app/features/"
+            ],
             "lintFilePatterns": [
               "src/**/*.ts",
               "src/**/*.component.html"
