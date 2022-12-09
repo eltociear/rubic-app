@@ -1,3 +1,5 @@
+@use 'src/scss/core' as *;
+
 :host {
   display: flex;
   justify-content: center;
@@ -9,6 +11,10 @@
   align-items: center;
   justify-content: center;
   max-width: 800px;
+
+  @include b($mobile-md-minus) {
+    max-width: 100%;
+  }
 }
 
 app-airdrop-address {
@@ -17,4 +23,10 @@ app-airdrop-address {
 
 app-claim-button {
   margin-top: 20px;
+}
+
+app-rubic-token {
+  @include b($mobile-md-minus) {
+    width: 100%;
+  }
 }

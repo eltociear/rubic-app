@@ -740,7 +740,7 @@
     "notification": {
       "progress": "Claim in progress",
       "success": "Claim is success",
-      "paused": "The contract is currently paused. Try again later",
+      "paused": "Token claim is temporarily unavailable. Please, try again later",
       "claimed": "Tokens are claimed already, check your wallet",
       "unknown": "Oops, something went wrong, please try again later"
     }

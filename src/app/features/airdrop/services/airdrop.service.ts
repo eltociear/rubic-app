@@ -13,11 +13,11 @@ import { AirdropNode } from '@features/airdrop/models/airdrop-node';
 import { BigNumber as EthersBigNumber } from 'ethers';
 import { NotificationsService } from '@core/services/notifications/notifications.service';
 import { TuiNotification } from '@taiga-ui/core';
-import { RubicError } from '@core/errors/models/rubic-error';
 import { WalletConnectorService } from '@core/services/wallets/wallet-connector-service/wallet-connector.service';
 import { RubicSdkService } from '@core/services/rubic-sdk-service/rubic-sdk.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EvmWeb3Pure } from 'rubic-sdk/lib/core/blockchain/web3-pure/typed-web3-pure/evm-web3-pure/evm-web3-pure';
+import { airdropContractAddress } from '@features/airdrop/constants/airdrop-contract-address';
 
 interface SourceNode {
   index: number;
@@ -37,7 +37,7 @@ export class AirdropService {
     }))
   );
 
-  private readonly airDropContractAddress = '0x057E171E6Bd2Ea1e474790f49AC369Cfe925A535';
+  private readonly airDropContractAddress = airdropContractAddress;
 
   private readonly _claimLoading$ = new BehaviorSubject(false);
 
@@ -157,7 +157,7 @@ export class AirdropService {
       .getWeb3Public(BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN)
       .callContractMethod(this.airDropContractAddress, airdropContractAbi, 'paused', []);
     if (isPaused) {
-      throw new RubicError('paused');
+      throw new Error('paused');
     }
   }
 
@@ -166,7 +166,7 @@ export class AirdropService {
       .getWeb3Public(BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN)
       .callContractMethod(this.airDropContractAddress, airdropContractAbi, 'isClaimed', [index]);
     if (isPaused) {
-      throw new RubicError('claimed');
+      throw new Error('claimed');
     }
   }
 
@@ -187,13 +187,14 @@ export class AirdropService {
       if (err.message === 'paused') {
         label = this.translateService.instant('airdrop.notification.paused');
         status = TuiNotification.Warning;
-      }
-      if (err.message === 'claimed') {
+      } else if (err.message === 'claimed') {
         label = this.translateService.instant('airdrop.notification.claimed');
         status = TuiNotification.Warning;
+      } else {
+        label = this.translateService.instant('airdrop.notification.unknown');
+        status = TuiNotification.Error;
       }
-      label = this.translateService.instant('airdrop.notification.unknown');
-      status = TuiNotification.Error;
+
       this.notificationsService.show(label, { autoClose: 10000, status });
     }
   }

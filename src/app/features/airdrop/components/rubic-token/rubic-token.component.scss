@@ -1,19 +1,32 @@
+@use 'src/scss/core' as *;
+
 img {
   width: 16px;
   height: 16px;
   margin: 0 5px 0 0;
 }
 
-p,
-span {
+p {
   display: flex;
   align-items: center;
+  margin-top: 0;
+
+  @include b($mobile-md-minus) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 span {
+  align-items: center;
+
   cursor: pointer;
 }
 
 app-rubic-button {
   margin-left: 10px;
+
+  @include b($mobile-md-minus) {
+    margin-top: 10px;
+  }
 }

@@ -22,8 +22,8 @@ export const airdropContractAbi: AbiItem[] = [
   },
   {
     inputs: [],
-    name: 'merkleRoot',
-    outputs: [{ internalType: 'bytes32', name: '', type: 'bytes32' }],
+    name: 'paused',
+    outputs: [{ internalType: 'bool', name: '', type: 'bool' }],
     stateMutability: 'view',
     type: 'function'
   }
