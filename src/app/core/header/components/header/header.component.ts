@@ -4,7 +4,6 @@ import {
   PLATFORM_ID,
   ViewChild,
   HostListener,
-  TemplateRef,
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   AfterViewInit,
@@ -20,7 +19,7 @@ import { ErrorsService } from 'src/app/core/errors/errors.service';
 import { Router } from '@angular/router';
 import { QueryParamsService } from 'src/app/core/services/query-params/query-params.service';
 import { WINDOW } from '@ng-web-apis/common';
-import { takeUntil } from 'rxjs/operators';
+import { map, startWith, takeUntil } from 'rxjs/operators';
 import { TuiDestroyService } from '@taiga-ui/cdk';
 import { BuyTokenComponent } from '@shared/components/buy-token/buy-token.component';
 import { HeaderStore } from '../../services/header.store';
@@ -35,8 +34,6 @@ import { ThemeService } from '@core/services/theme/theme.service';
   providers: [TuiDestroyService]
 })
 export class HeaderComponent implements AfterViewInit {
-  @ViewChild('headerPage') public headerPage: TemplateRef<unknown>;
-
   @ViewChild(BuyTokenComponent) public buyTokenComponent: BuyTokenComponent;
 
   /**
@@ -49,8 +46,6 @@ export class HeaderComponent implements AfterViewInit {
   public readonly isMobile$: Observable<boolean>;
 
   public currentUser$: Observable<UserInterface>;
-
-  public readonly swapType$: Observable<SWAP_PROVIDER_TYPE>;
 
   public isSettingsOpened = false;
 
