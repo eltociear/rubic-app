@@ -14,7 +14,7 @@
       {{ userAddress.length > 20 ? (userAddress | shortAddress: 5:3) : userAddress }}
     </div>
 
-    <img src="assets/images/icons/arrow-down.svg" width="11" height="7" alt="Dropdown arrow" />
+    <div class="arrow" inlineSVG="assets/images/icons/arrow-down.svg"></div>
   </div>
 </ng-template>
 
@@ -22,6 +22,19 @@
   <a class="user-profile__dropdown-item" href="https://app.rubic.exchange/promotion">
     {{ 'navigation.promotion' | translate }}
   </a>
+</ng-template>
+
+<ng-template #dropdownOptionTemplate>
+  <div *noFrame class="user-profile__dropdown-item button-link" (click)="openRecentTradesModal()">
+    {{ 'navigation.recentTrades' | translate }}
+    <app-notification-badge
+      class="notification-counter notification-counter_menu"
+      *ngIf="(unreadTrades$ | async) && (currentUser$ | async) && !dropdownIsOpened"
+      size="xs"
+      color="red"
+      [value]="unreadTrades$ | async"
+    ></app-notification-badge>
+  </div>
 </ng-template>
 
 <ng-template #dropdownOptionTemplate>
