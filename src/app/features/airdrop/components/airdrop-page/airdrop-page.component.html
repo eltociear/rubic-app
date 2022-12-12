@@ -1,8 +1,14 @@
 <div class="merkle">
   <h1>{{ 'airdrop.title' | translate }}</h1>
-  <p>{{ 'airdrop.description' | translate }}</p>
+  <p>
+    {{ 'airdrop.description' | translate }}<br />
+    {{ 'airdrop.tokenDescription' | translate }}
+  </p>
 
-  <app-rubic-token></app-rubic-token>
   <app-airdrop-address></app-airdrop-address>
-  <app-claim-button></app-claim-button>
+
+  <div class="buttons-container">
+    <app-claim-button></app-claim-button>
+    <app-rubic-token></app-rubic-token>
+  </div>
 </div>

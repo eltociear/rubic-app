@@ -1,8 +1,14 @@
-<p>
-  {{ 'airdrop.tokenDescription' | translate }}
-  <app-rubic-button size="s">
-    <span (click)="addRubicToken()">
-      <img src="assets/images/icons/header/rubic-light.svg" alt="Rubic token" />RBC token
-    </span>
-  </app-rubic-button>
-</p>
+<app-rubic-button size="l">
+  <span (click)="addRubicToken()">
+    <img
+      class="logo"
+      src="assets/images/icons/header/rubic-light.svg"
+      alt="Add token to metamask"
+    />Add Token
+    <img
+      class="metamask"
+      src="assets/images/icons/airdrop/metamask.svg"
+      alt="Add token to metamask"
+    />
+  </span>
+</app-rubic-button>

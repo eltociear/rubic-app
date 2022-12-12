@@ -16,13 +16,15 @@ export class RubicTokenComponent {
   ) {}
 
   public async addRubicToken(): Promise<void> {
-    const newRubicToken = {
-      decimals: 18,
-      symbol: 'RBC',
-      name: 'Rubic',
-      image: `${this.window.location.origin}/assets/images/new-token.png`,
-      address: '0x09f3bd68a90f10da92add1d14767340fbc1485eb'
-    };
-    await this.walletConnectorService.addToken(newRubicToken);
+    if (this.walletConnectorService.address) {
+      const newRubicToken = {
+        decimals: 18,
+        symbol: 'RBC',
+        name: 'Rubic',
+        image: `${this.window.location.origin}/assets/images/new-token.png`,
+        address: '0x09f3bd68a90f10da92add1d14767340fbc1485eb'
+      };
+      await this.walletConnectorService.addToken(newRubicToken);
+    }
   }
 }

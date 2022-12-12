@@ -3,7 +3,14 @@
 img {
   width: 16px;
   height: 16px;
-  margin: 0 5px 0 0;
+}
+
+.logo {
+  margin-right: 10px;
+}
+
+.metamask {
+  margin-left: 10px;
 }
 
 p {
@@ -18,15 +25,8 @@ p {
 }
 
 span {
+  display: flex;
   align-items: center;
 
   cursor: pointer;
-}
-
-app-rubic-button {
-  margin-left: 10px;
-
-  @include b($mobile-md-minus) {
-    margin-top: 10px;
-  }
 }

@@ -12,7 +12,7 @@
   </form>
 
   <ng-container *ngLet="claimedTokens$ | async as claimedTokens">
-    <div *ngIf="!!address.value" class="description">
+    <div *ngIf="!!address.value && !address?.errors?.incorrectAddressError" class="description">
       <ng-container *ngIf="address.valid; else error">
         <img
           class="description__icon"

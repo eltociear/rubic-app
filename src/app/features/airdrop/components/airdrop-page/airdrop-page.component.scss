@@ -18,15 +18,15 @@
 }
 
 app-airdrop-address {
-  margin-top: 20px;
+  margin-top: 13px;
 }
 
-app-claim-button {
-  margin-top: 20px;
-}
+.buttons-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 26px;
 
-app-rubic-token {
   @include b($mobile-md-minus) {
-    width: 100%;
+    flex-direction: column;
   }
 }

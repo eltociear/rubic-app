@@ -619,7 +619,7 @@
     "to": "至"
   },
   "airdrop": {
-    "title": "Rubic token Claim",
+    "title": "Rubic Token Claim",
     "description": "Using this website, you can check if any of your addresses are eligible to withdraw RUBIC Tokens (RBC).",
     "enterAddress": "Enter your Ethereum address",
     "goodAddress": "Yes, this address is eligible for a token claim",
@@ -628,17 +628,24 @@
     "button": {
       "login": "Connect Wallet",
       "claim": "Claim Tokens",
-      "wrongAddressError": "Entered address is incorrect",
-      "emptyError": "Enter the tokens’ receiver address",
-      "changeNetwork": "Change Network to Ethereum"
+      "wrongAddressError": "Enter another address",
+      "emptyError": "Enter holder address",
+      "changeNetwork": "Change Network to Ethereum",
+      "incorrectAddressError": "Entered address is incorrect"
     },
-    "tokenDescription": "In case of success claim, you will get new",
+    "tokenDescription": "In case of success claim, you will get new RBC Token",
     "notification": {
       "progress": "Claim in progress",
       "success": "Claim is success",
       "paused": "Token claim is temporarily unavailable. Please, try again later",
       "claimed": "Tokens are claimed already, check your wallet",
-      "unknown": "Oops, something went wrong, please try again later"
+      "unknown": "Oops, something went wrong, please try again later",
+      "reject": "You rejected the execution of the transaction. Please confirm it first in order to complete the claim",
+      "modalDescription": "The address in your wallet and the address to claim tokens are different. Do you agree to claim tokens at a different address?"
+    },
+    "modals": {
+      "success": "Your tokens is on the way!",
+      "explorerLink": "Check transaction on explorer."
     }
   }
 }

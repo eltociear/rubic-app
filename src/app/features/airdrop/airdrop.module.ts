@@ -10,13 +10,17 @@ import { ClaimButtonComponent } from './components/claim-button/claim-button.com
 import { RubicTokenComponent } from './components/rubic-token/rubic-token.component';
 import { InlineSVGModule } from 'ng-inline-svg-2';
 import { TuiTextfieldControllerModule } from '@taiga-ui/core';
+import { DifferentAddressesModalComponent } from './components/different-addresses-modal/different-addresses-modal.component';
+import { SuccessClaimModalComponent } from '@features/airdrop/components/success-claim-modal/success-claim-modal.component';
 
 @NgModule({
   declarations: [
     AirdropPageComponent,
     AirdropAddressComponent,
     ClaimButtonComponent,
-    RubicTokenComponent
+    RubicTokenComponent,
+    DifferentAddressesModalComponent,
+    SuccessClaimModalComponent
   ],
   imports: [
     CommonModule,

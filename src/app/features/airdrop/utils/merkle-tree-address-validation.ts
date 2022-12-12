@@ -6,16 +6,16 @@ export function checkAddressValidity(airdropService: AirdropService): ValidatorF
   return (control: AbstractControl<string | null>): ValidationErrors | null => {
     const address: string | null = control.value;
     if (!address) {
-      return { wrongAddress: address };
+      return { emptyAddressError: true };
     }
 
     const isEthAddress = EvmWeb3Pure.isAddressCorrect(address);
     if (!isEthAddress) {
-      return { wrongAddress: address };
+      return { incorrectAddressError: true };
     }
 
     const proof = airdropService.getProofByAddress(EvmWeb3Pure.toChecksumAddress(address));
 
-    return proof ? null : { wrongAddress: address };
+    return proof ? null : { wrongAddressError: true };
   };
 }

@@ -2,22 +2,26 @@ import { Injectable } from '@angular/core';
 import sourceAirdropMerkle from '../constants/airdrop-merkle-tree.json';
 import BalanceTree from '@features/airdrop/utils/balance-tree';
 import BigNumber from 'bignumber.js';
-import { BLOCKCHAIN_NAME, CHAIN_TYPE, Injector, Web3Pure } from 'rubic-sdk';
+import { BLOCKCHAIN_NAME, CHAIN_TYPE, Injector, UserRejectError, Web3Pure } from 'rubic-sdk';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { checkAddressValidity } from '@features/airdrop/utils/merkle-tree-address-validation';
 import { filter, first, map } from 'rxjs/operators';
 import { tuiPure } from '@taiga-ui/cdk';
-import { BehaviorSubject, lastValueFrom, Subscription } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, lastValueFrom, Subscription } from 'rxjs';
 import { airdropContractAbi } from '@features/airdrop/constants/airdrop-contract-abi';
 import { AirdropNode } from '@features/airdrop/models/airdrop-node';
 import { BigNumber as EthersBigNumber } from 'ethers';
 import { NotificationsService } from '@core/services/notifications/notifications.service';
-import { TuiNotification } from '@taiga-ui/core';
+import { TuiDialogService, TuiNotification } from '@taiga-ui/core';
 import { WalletConnectorService } from '@core/services/wallets/wallet-connector-service/wallet-connector.service';
 import { RubicSdkService } from '@core/services/rubic-sdk-service/rubic-sdk.service';
 import { TranslateService } from '@ngx-translate/core';
 import { EvmWeb3Pure } from 'rubic-sdk/lib/core/blockchain/web3-pure/typed-web3-pure/evm-web3-pure/evm-web3-pure';
 import { airdropContractAddress } from '@features/airdrop/constants/airdrop-contract-address';
+import { PolymorpheusComponent } from '@tinkoff/ng-polymorpheus';
+import { SuccessClaimModalComponent } from '@features/airdrop/components/success-claim-modal/success-claim-modal.component';
+import { DifferentAddressesModalComponent } from '@features/airdrop/components/different-addresses-modal/different-addresses-modal.component';
+import { compareAddresses } from '@shared/utils/utils';
 
 interface SourceNode {
   index: number;
@@ -63,7 +67,8 @@ export class AirdropService {
     private readonly notificationsService: NotificationsService,
     private readonly walletConnectorService: WalletConnectorService,
     private readonly sdkService: RubicSdkService,
-    private readonly translateService: TranslateService
+    private readonly translateService: TranslateService,
+    private readonly dialogService: TuiDialogService
   ) {}
 
   @tuiPure
@@ -112,6 +117,7 @@ export class AirdropService {
 
     try {
       await this.checkPause();
+      await this.checkAddress();
 
       const web3 = Injector.web3PrivateService.getWeb3Private(CHAIN_TYPE.EVM);
       const address = this.airdropForm.controls.address.value;
@@ -126,7 +132,8 @@ export class AirdropService {
         'claim',
         [node.index, node.account, node.amount, proof],
         {
-          onTransactionHash: _hash => {
+          onTransactionHash: hash => {
+            this.showSuccessModa(hash);
             claimInProgressNotification = this.notificationsService.show(
               this.translateService.instant('airdrop.notification.progress'),
               {
@@ -190,12 +197,49 @@ export class AirdropService {
       } else if (err.message === 'claimed') {
         label = this.translateService.instant('airdrop.notification.claimed');
         status = TuiNotification.Warning;
+      } else if (err.message === 'User does not agree to claim tokens') {
+        label = this.translateService.instant('airdrop.notification.reject');
+        status = TuiNotification.Error;
       } else {
         label = this.translateService.instant('airdrop.notification.unknown');
         status = TuiNotification.Error;
       }
 
+      if (err instanceof UserRejectError) {
+        label = this.translateService.instant('airdrop.notification.reject');
+        status = TuiNotification.Error;
+      }
+
       this.notificationsService.show(label, { autoClose: 10000, status });
     }
+  }
+
+  private async checkAddress(): Promise<void> {
+    const claimAddress = this.airdropForm.controls.address.value;
+    const userAddress = this.walletConnectorService.address;
+    if (!compareAddresses(claimAddress, userAddress)) {
+      try {
+        const isUserAgreed = await firstValueFrom(
+          this.dialogService.open<boolean>(
+            new PolymorpheusComponent(DifferentAddressesModalComponent),
+            { size: 'm' }
+          )
+        );
+        if (!isUserAgreed) {
+          throw new Error();
+        }
+      } catch {
+        throw new Error('User does not agree to claim tokens');
+      }
+    }
+  }
+
+  private showSuccessModa(hash: string): void {
+    this.dialogService
+      .open(new PolymorpheusComponent(SuccessClaimModalComponent), {
+        size: 'm',
+        data: { hash }
+      })
+      .subscribe();
   }
 }
