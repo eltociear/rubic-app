@@ -28,5 +28,6 @@ app-airdrop-address {
 
   @include b($mobile-md-minus) {
     flex-direction: column;
+    align-self: normal;
   }
 }
