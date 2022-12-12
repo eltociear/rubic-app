@@ -11,15 +11,13 @@
     <div class="modal__footer">
       <p>
         {{ 'airdrop.modals.success' | translate }}&nbsp;
+        <br />
         <a [safetyLink]="hash | scannerLink: blockchain:addressType">{{
           'airdrop.modals.explorerLink' | translate
         }}</a>
       </p>
       <div class="modal__footer-actions">
         <app-rubic-button appearance="primary" (onClick)="handleConfirm()">Ok</app-rubic-button>
-        <app-rubic-button appearance="secondary" (onClick)="handleCancel()">
-          {{ 'common.cancel' | translate }}
-        </app-rubic-button>
       </div>
     </div>
   </div>

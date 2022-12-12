@@ -12,6 +12,10 @@ import { InlineSVGModule } from 'ng-inline-svg-2';
 import { TuiTextfieldControllerModule } from '@taiga-ui/core';
 import { DifferentAddressesModalComponent } from './components/different-addresses-modal/different-addresses-modal.component';
 import { SuccessClaimModalComponent } from '@features/airdrop/components/success-claim-modal/success-claim-modal.component';
+import { AirdropPopupService } from '@features/airdrop/services/airdrop-popup.service';
+import { AirdropWeb3Service } from '@features/airdrop/services/airdrop-web3.service';
+import { AirdropMerkleService } from '@features/airdrop/services/airdrop-merkle.service';
+import { AirdropFacadeService } from '@features/airdrop/services/airdrop-facade.service';
 
 @NgModule({
   declarations: [
@@ -30,6 +34,7 @@ import { SuccessClaimModalComponent } from '@features/airdrop/components/success
     SharedModule,
     InlineSVGModule,
     TuiTextfieldControllerModule
-  ]
+  ],
+  providers: [AirdropFacadeService, AirdropPopupService, AirdropWeb3Service, AirdropMerkleService]
 })
 export class AirdropModule {}

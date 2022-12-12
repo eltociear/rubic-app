@@ -1,12 +1,13 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AirdropService } from '@features/airdrop/services/airdrop.service';
 import { combineLatestWith, map, startWith } from 'rxjs/operators';
 import { AuthService } from '@core/services/auth/auth.service';
 import { WalletConnectorService } from '@core/services/wallets/wallet-connector-service/wallet-connector.service';
-import { BLOCKCHAIN_NAME, BlockchainName, EvmWeb3Pure } from 'rubic-sdk';
+import { BlockchainName, EvmWeb3Pure } from 'rubic-sdk';
 import { Observable } from 'rxjs';
 import { WalletsModalService } from '@core/wallets-modal/services/wallets-modal.service';
 import { UserInterface } from '@core/services/auth/models/user.interface';
+import { newRubicToken } from '@features/airdrop/constants/airdrop-token';
+import { AirdropFacadeService } from '@features/airdrop/services/airdrop-facade.service';
 
 type ButtonLabel =
   | 'login'
@@ -43,7 +44,7 @@ export class ClaimButtonComponent {
   public readonly loading$ = this.airdropService.claimLoading$;
 
   constructor(
-    private readonly airdropService: AirdropService,
+    private readonly airdropService: AirdropFacadeService,
     private readonly authService: AuthService,
     private readonly walletConnectorService: WalletConnectorService,
     private readonly walletModalService: WalletsModalService
@@ -76,7 +77,7 @@ export class ClaimButtonComponent {
     if (!user?.address) {
       return 'login';
     }
-    if (!network || network !== BLOCKCHAIN_NAME.BINANCE_SMART_CHAIN) {
+    if (!network || network !== newRubicToken.blockchain) {
       return 'changeNetwork';
     }
     if (isValid) {

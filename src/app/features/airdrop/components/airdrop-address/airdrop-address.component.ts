@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { AirdropService } from '@features/airdrop/services/airdrop.service';
 import { WalletConnectorService } from '@core/services/wallets/wallet-connector-service/wallet-connector.service';
+import { AirdropFacadeService } from '@features/airdrop/services/airdrop-facade.service';
 
 @Component({
   selector: 'app-airdrop-address',
@@ -16,7 +16,7 @@ export class AirdropAddressComponent {
   public readonly claimedTokens$ = this.airdropService.claimedTokens$;
 
   constructor(
-    private readonly airdropService: AirdropService,
+    private readonly airdropService: AirdropFacadeService,
     private readonly walletConnectorService: WalletConnectorService
   ) {}
 

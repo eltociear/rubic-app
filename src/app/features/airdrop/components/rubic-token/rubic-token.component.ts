@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { WalletConnectorService } from '@core/services/wallets/wallet-connector-service/wallet-connector.service';
 import { WINDOW } from '@ng-web-apis/common';
 import { RubicWindow } from '@shared/utils/rubic-window';
+import { newRubicToken } from '@features/airdrop/constants/airdrop-token';
 
 @Component({
   selector: 'app-rubic-token',
@@ -16,15 +17,12 @@ export class RubicTokenComponent {
   ) {}
 
   public async addRubicToken(): Promise<void> {
+    const tokenWithImage = {
+      ...newRubicToken,
+      image: `${this.window.location.origin}/assets/images/new-token.png`
+    };
     if (this.walletConnectorService.address) {
-      const newRubicToken = {
-        decimals: 18,
-        symbol: 'RBC',
-        name: 'Rubic',
-        image: `${this.window.location.origin}/assets/images/new-token.png`,
-        address: '0x09f3bd68a90f10da92add1d14767340fbc1485eb'
-      };
-      await this.walletConnectorService.addToken(newRubicToken);
+      await this.walletConnectorService.addToken(tokenWithImage);
     }
   }
 }

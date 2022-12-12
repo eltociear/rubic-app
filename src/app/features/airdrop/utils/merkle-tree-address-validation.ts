@@ -1,8 +1,8 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import { EvmWeb3Pure } from 'rubic-sdk/lib/core/blockchain/web3-pure/typed-web3-pure/evm-web3-pure/evm-web3-pure';
-import { AirdropService } from '@features/airdrop/services/airdrop.service';
+import { AirdropMerkleService } from '@features/airdrop/services/airdrop-merkle.service';
 
-export function checkAddressValidity(airdropService: AirdropService): ValidatorFn {
+export function checkAddressValidity(merkleService: AirdropMerkleService): ValidatorFn {
   return (control: AbstractControl<string | null>): ValidationErrors | null => {
     const address: string | null = control.value;
     if (!address) {
@@ -14,7 +14,7 @@ export function checkAddressValidity(airdropService: AirdropService): ValidatorF
       return { incorrectAddressError: true };
     }
 
-    const proof = airdropService.getProofByAddress(EvmWeb3Pure.toChecksumAddress(address));
+    const proof = merkleService.getProofByAddress(EvmWeb3Pure.toChecksumAddress(address));
 
     return proof ? null : { wrongAddressError: true };
   };
