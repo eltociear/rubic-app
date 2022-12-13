@@ -21,13 +21,6 @@
 
   <nav class="rubic-header__nav">
     <a class="button-link" (click)="navigateToSwaps()" [class.button-link_active]="false">Swaps</a>
-    <a
-      class="button-link"
-      href="https://app.rubic.exchange/staking"
-      routerLinkActive="button-link_active"
-    >
-      {{ 'navigation.stakingLp' | translate }}
-    </a>
   </nav>
 
   <app-buy-token class="rubic-header__buy-token" [tokensType]="advertisementType"></app-buy-token>

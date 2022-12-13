@@ -25,19 +25,6 @@
 </ng-template>
 
 <ng-template #dropdownOptionTemplate>
-  <div *noFrame class="user-profile__dropdown-item button-link" (click)="openRecentTradesModal()">
-    {{ 'navigation.recentTrades' | translate }}
-    <app-notification-badge
-      class="notification-counter notification-counter_menu"
-      *ngIf="(unreadTrades$ | async) && (currentUser$ | async) && !dropdownIsOpened"
-      size="xs"
-      color="red"
-      [value]="unreadTrades$ | async"
-    ></app-notification-badge>
-  </div>
-</ng-template>
-
-<ng-template #dropdownOptionTemplate>
   <button class="user-profile__dropdown-item user-profile__logout" (click)="logout()">
     {{ 'navigation.logout' | translate }}
   </button>
