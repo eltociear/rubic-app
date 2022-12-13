@@ -38,7 +38,7 @@ export class ClaimButtonComponent {
       combineLatestWith(this.authService.currentUser$, this.walletConnectorService.networkChange$),
       map(([isValid, user, network]) => this.getButtonKey([isValid, user, network])),
       map(buttonLabel => ({ label: buttonLabel, isError: this.getErrorState(buttonLabel) })),
-      startWith({ label: 'emptyError' as ButtonLabel, isError: true })
+      startWith({ label: 'emptyError' as ButtonLabel, isError: false })
     );
 
   public readonly loading$ = this.airdropService.claimLoading$;
@@ -94,10 +94,6 @@ export class ClaimButtonComponent {
   }
 
   private getErrorState(buttonLabel: ButtonLabel): boolean {
-    return (
-      buttonLabel === 'wrongAddressError' ||
-      buttonLabel === 'emptyError' ||
-      buttonLabel === 'incorrectAddressError'
-    );
+    return buttonLabel === 'wrongAddressError' || buttonLabel === 'incorrectAddressError';
   }
 }

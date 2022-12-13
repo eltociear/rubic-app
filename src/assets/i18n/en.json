@@ -635,7 +635,7 @@
       "changeNetwork": "Change Network to Ethereum",
       "incorrectAddressError": "Entered address is incorrect"
     },
-    "tokenDescription": "In case of success claim, you will get new RBC Token",
+    "tokenDescription": "In case of a successful claim, new RBC tokens will be allocated to your wallet",
     "notification": {
       "progress": "Claim in progress",
       "success": "Claim is success",
