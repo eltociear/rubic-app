@@ -3,6 +3,7 @@ import { WalletConnectorService } from '@core/services/wallets/wallet-connector-
 import { WINDOW } from '@ng-web-apis/common';
 import { RubicWindow } from '@shared/utils/rubic-window';
 import { newRubicToken } from '@features/airdrop/constants/airdrop-token';
+import { AirdropPopupService } from '@features/airdrop/services/airdrop-popup.service';
 
 @Component({
   selector: 'app-rubic-token',
@@ -13,6 +14,7 @@ import { newRubicToken } from '@features/airdrop/constants/airdrop-token';
 export class RubicTokenComponent {
   constructor(
     private readonly walletConnectorService: WalletConnectorService,
+    private readonly popupService: AirdropPopupService,
     @Inject(WINDOW) private readonly window: RubicWindow
   ) {}
 
@@ -23,6 +25,8 @@ export class RubicTokenComponent {
     };
     if (this.walletConnectorService.address) {
       await this.walletConnectorService.addToken(tokenWithImage);
+    } else {
+      this.popupService.showUnauthorizedUserNotification();
     }
   }
 }

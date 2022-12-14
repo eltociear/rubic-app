@@ -36,10 +36,13 @@ export abstract class EvmWalletAdapter<T = RubicAny> extends CommonWalletAdapter
   }
 
   public async addToken(
-    token: Omit<BlockchainToken, 'blockchain'> & { image: string }
+    token: Omit<BlockchainToken, 'blockchain'> & { image: string },
+    isMobile = false
   ): Promise<void | never> {
     const eventName =
-      this.walletName === WALLET_NAME.METAMASK ? 'metamask_watchAsset' : 'wallet_watchAsset';
+      this.walletName === WALLET_NAME.METAMASK && isMobile === false
+        ? 'metamask_watchAsset'
+        : 'wallet_watchAsset';
     return (this.wallet as RubicAny).request({
       method: eventName,
       params: {

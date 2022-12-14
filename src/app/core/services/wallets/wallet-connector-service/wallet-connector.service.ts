@@ -9,7 +9,7 @@ import { StoreService } from '@core/services/store/store.service';
 import { WINDOW } from '@ng-web-apis/common';
 import { RubicWindow } from '@shared/utils/rubic-window';
 import { HttpService } from '@core/services/http/http.service';
-import { TUI_IS_IOS } from '@taiga-ui/cdk';
+import { TUI_IS_IOS, TUI_IS_MOBILE } from '@taiga-ui/cdk';
 import { CommonWalletAdapter } from '@core/services/wallets/wallets-adapters/common-wallet-adapter';
 import { TrustWalletAdapter } from '@core/services/wallets/wallets-adapters/evm/trust-wallet-adapter';
 import { WALLET_NAME } from '@core/wallets-modal/components/wallets-modal/models/wallet-name';
@@ -67,6 +67,7 @@ export class WalletConnectorService {
     private readonly httpService: HttpService,
     @Inject(WINDOW) private readonly window: RubicWindow,
     @Inject(TUI_IS_IOS) private readonly isIos: boolean,
+    @Inject(TUI_IS_MOBILE) private readonly isMobile: boolean,
     private readonly zone: NgZone
   ) {}
 
@@ -208,7 +209,7 @@ export class WalletConnectorService {
     token: Omit<BlockchainToken, 'blockchain'> & { image: string }
   ): Promise<boolean> {
     try {
-      await (this.provider as EvmWalletAdapter).addToken(token);
+      await (this.provider as EvmWalletAdapter).addToken(token, this.isMobile);
       return true;
     } catch (error) {
       this.errorService.catch(error);

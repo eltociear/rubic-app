@@ -26,6 +26,16 @@ export class AirdropPopupService {
     );
   }
 
+  public showUnauthorizedUserNotification(): Subscription {
+    return this.notificationsService.show(
+      this.translateService.instant('airdrop.notification.unauthorized'),
+      {
+        status: TuiNotification.Warning,
+        autoClose: 10000
+      }
+    );
+  }
+
   public showSuccessNotification(): Subscription {
     return this.notificationsService.show(
       this.translateService.instant('airdrop.notification.success'),
