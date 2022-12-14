@@ -30,6 +30,7 @@ import { blockchainIcon } from '@shared/constants/blockchain/blockchain-icon';
 import { defaultBlockchainData } from '@core/services/wallets/wallet-connector-service/constants/default-blockchain-data';
 import { EvmWalletAdapter } from '@core/services/wallets/wallets-adapters/evm/common/evm-wallet-adapter';
 import { BlockchainToken } from '@shared/models/tokens/blockchain-token';
+import { UserRejectError } from '@core/errors/models/provider/user-reject-error';
 
 @Injectable({
   providedIn: 'root'
@@ -211,7 +212,9 @@ export class WalletConnectorService {
     try {
       await (this.provider as EvmWalletAdapter).addToken(token, this.isMobile);
       return true;
-    } catch (error) {
+    } catch (errorEntity) {
+      const error =
+        'code' in errorEntity && errorEntity.code === 4001 ? new UserRejectError() : errorEntity;
       this.errorService.catch(error);
       return false;
     }
