@@ -447,9 +447,10 @@ export class CrossChainFormService {
     }
 
     if (
-      this.selectedTrade.tradeType !== updatedSelectedTrade.tradeType ||
-      !this.selectedTrade.trade.to.tokenAmount.eq(updatedSelectedTrade.trade.to.tokenAmount) ||
-      (!this.selectedTrade.error && updatedSelectedTrade.error)
+      this.selectedTrade &&
+      (this.selectedTrade.tradeType !== updatedSelectedTrade.tradeType ||
+        !this.selectedTrade.trade.to.tokenAmount.eq(updatedSelectedTrade.trade.to.tokenAmount) ||
+        (!this.selectedTrade.error && updatedSelectedTrade.error))
     ) {
       this.updatedSelectedTrade = updatedSelectedTrade;
 
@@ -471,8 +472,10 @@ export class CrossChainFormService {
     if (this.updatedSelectedTrade) {
       this.updateSelectedTrade(this.updatedSelectedTrade);
     } else {
+      const tradeStatus = this.tradeStatus;
       this.tradeStatus = TRADE_STATUS.LOADING;
       this.startRecalculation();
+      this.tradeStatus = tradeStatus;
     }
   }
 
