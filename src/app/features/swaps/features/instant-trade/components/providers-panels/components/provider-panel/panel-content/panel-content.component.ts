@@ -8,12 +8,10 @@ import {
 } from '@angular/core';
 import { TradePanelData } from '@features/swaps/features/instant-trade/components/providers-panels/components/provider-panel/models/trade-panel-data';
 import { ProviderPanelData } from '@features/swaps/features/instant-trade/components/providers-panels/components/provider-panel/models/provider-panel-data';
-import BigNumber from 'bignumber.js';
-import { PERMITTED_PRICE_DIFFERENCE } from '@shared/constants/common/permited-price-difference';
 import { TokenAmount } from '@shared/models/tokens/token-amount';
-import { SwapFormService } from '@features/swaps/core/services/swap-form-service/swap-form.service';
+import { SwapFormService } from '@core/services/swaps/swap-form.service';
 import { TuiDestroyService } from '@taiga-ui/cdk';
-import { startWith, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { BLOCKCHAIN_NAME } from 'rubic-sdk';
 
 @Component({
@@ -34,20 +32,6 @@ export class PanelContentComponent implements OnInit {
 
   private toToken: TokenAmount;
 
-  public get usdPrice(): BigNumber {
-    if (!this.toToken?.price || !this.tradePanelData?.amount) {
-      return null;
-    }
-
-    const { fromToken, fromAmount } = this.swapFormService.inputValue;
-    const fromTokenCost = fromAmount.multipliedBy(fromToken.price);
-    const toTokenCost = this.tradePanelData.amount.multipliedBy(this.toToken.price);
-    if (toTokenCost.minus(fromTokenCost).dividedBy(fromTokenCost).gt(PERMITTED_PRICE_DIFFERENCE)) {
-      return null;
-    }
-    return toTokenCost;
-  }
-
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly swapFormService: SwapFormService,
@@ -57,14 +41,12 @@ export class PanelContentComponent implements OnInit {
   public ngOnInit(): void {
     this.displayGas = this.tradePanelData?.blockchain === BLOCKCHAIN_NAME.ETHEREUM;
 
-    this.swapFormService.inputValueChanges
-      .pipe(startWith(this.swapFormService.inputValue), takeUntil(this.destroy$))
-      .subscribe(form => {
-        const { toToken } = form;
-        if (this.toToken?.price !== toToken?.price) {
-          this.toToken = toToken;
-          this.cdr.markForCheck();
-        }
-      });
+    this.swapFormService.inputValue$.pipe(takeUntil(this.destroy$)).subscribe(form => {
+      const { toToken } = form;
+      if (this.toToken?.price !== toToken?.price) {
+        this.toToken = toToken;
+        this.cdr.markForCheck();
+      }
+    });
   }
 }

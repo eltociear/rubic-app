@@ -21,15 +21,23 @@ const BLOCKCHAINS_MAPPING = {
   [BLOCKCHAIN_NAME.MOONBEAM]: 'moonbeam',
   [BLOCKCHAIN_NAME.CELO]: 'celo',
   [BLOCKCHAIN_NAME.BOBA]: 'boba',
+  [BLOCKCHAIN_NAME.BOBA_BSC]: 'boba-bsc',
+  [BLOCKCHAIN_NAME.BOBA_AVALANCHE]: 'boba-avalanche',
   [BLOCKCHAIN_NAME.ASTAR]: 'astar',
   [BLOCKCHAIN_NAME.BITCOIN]: 'bitcoin',
   [BLOCKCHAIN_NAME.ETHEREUM_POW]: 'ethereum-pow',
   [BLOCKCHAIN_NAME.TRON]: 'tron',
   [BLOCKCHAIN_NAME.KAVA]: 'kava',
-  [BLOCKCHAIN_NAME.BITGERT]: 'bitgert'
+  [BLOCKCHAIN_NAME.BITGERT]: 'bitgert',
+  [BLOCKCHAIN_NAME.OASIS]: 'oasis',
+  [BLOCKCHAIN_NAME.METIS]: 'metis',
+  [BLOCKCHAIN_NAME.DFK]: 'defikingdoms',
+  [BLOCKCHAIN_NAME.KLAYTN]: 'klaytn',
+  [BLOCKCHAIN_NAME.VELAS]: 'velas',
+  [BLOCKCHAIN_NAME.SYSCOIN]: 'syscoin'
 } as const;
 
-export const TO_BACKEND_BLOCKCHAINS: Record<BlockchainName, string> = {
+export const TO_BACKEND_BLOCKCHAINS: Record<BlockchainName, BackendBlockchain> = {
   ...BLOCKCHAINS_MAPPING
 };
 
@@ -56,10 +64,18 @@ export const FROM_BACKEND_BLOCKCHAINS: Record<BackendBlockchain, BlockchainName>
   moonbeam: BLOCKCHAIN_NAME.MOONBEAM,
   celo: BLOCKCHAIN_NAME.CELO,
   boba: BLOCKCHAIN_NAME.BOBA,
+  'boba-bsc': BLOCKCHAIN_NAME.BOBA_BSC,
+  'boba-avalanche': BLOCKCHAIN_NAME.BOBA_AVALANCHE,
   bitcoin: BLOCKCHAIN_NAME.BITCOIN,
   'ethereum-pow': BLOCKCHAIN_NAME.ETHEREUM_POW,
   tron: BLOCKCHAIN_NAME.TRON,
   kava: BLOCKCHAIN_NAME.KAVA,
   bitgert: BLOCKCHAIN_NAME.BITGERT,
-  astar: BLOCKCHAIN_NAME.ASTAR
+  astar: BLOCKCHAIN_NAME.ASTAR,
+  oasis: BLOCKCHAIN_NAME.OASIS,
+  metis: BLOCKCHAIN_NAME.METIS,
+  defikingdoms: BLOCKCHAIN_NAME.DFK,
+  klaytn: BLOCKCHAIN_NAME.KLAYTN,
+  velas: BLOCKCHAIN_NAME.VELAS,
+  syscoin: BLOCKCHAIN_NAME.SYSCOIN
 };

@@ -1,4 +1,4 @@
-import { TradeCalculationService } from '@features/swaps/core/services/trade-calculation-service/trade-calculation.service';
+import { TradeCalculationService } from '@features/swaps/core/services/trade-service/trade-calculation.service';
 import {
   BlockchainName,
   CROSS_CHAIN_TRADE_TYPE,
@@ -9,13 +9,13 @@ import {
   NotWhitelistedProviderError,
   RangoCrossChainTrade,
   SwapTransactionOptions,
+  SymbiosisCrossChainTrade,
   UnnecessaryApproveError,
   ViaCrossChainTrade,
   Web3Pure,
   WrappedCrossChainTrade
 } from 'rubic-sdk';
-import { RubicSdkService } from '@features/swaps/core/services/rubic-sdk-service/rubic-sdk.service';
-import { SwapFormService } from '@features/swaps/core/services/swap-form-service/swap-form.service';
+import { SdkService } from '@core/services/sdk/sdk.service';
 import { SettingsService } from '@features/swaps/core/services/settings-service/settings.service';
 import { WalletConnectorService } from '@core/services/wallets/wallet-connector-service/wallet-connector.service';
 import { Inject, Injectable } from '@angular/core';
@@ -23,8 +23,8 @@ import BigNumber from 'bignumber.js';
 import { CrossChainRoute } from '@features/swaps/features/cross-chain/models/cross-chain-route';
 import { from, Observable, of, Subscription } from 'rxjs';
 import { IframeService } from '@core/services/iframe/iframe.service';
-import { SWAP_PROVIDER_TYPE } from '@features/swaps/features/swaps-form/models/swap-provider-type';
-import { RecentTrade } from '@app/shared/models/my-trades/recent-trades.interface';
+import { SWAP_PROVIDER_TYPE } from '@features/swaps/features/swap-form/models/swap-provider-type';
+import { CrossChainRecentTrade } from '@shared/models/recent-trades/cross-chain-recent-trade';
 import { RecentTradesStoreService } from '@app/core/services/recent-trades/recent-trades-store.service';
 import { TuiDialogService } from '@taiga-ui/core';
 import { SwapSchemeModalComponent } from '../../components/swap-scheme-modal/swap-scheme-modal.component';
@@ -42,11 +42,14 @@ import {
   CrossChainCalculatedTradeData
 } from '@features/swaps/features/cross-chain/models/cross-chain-calculated-trade';
 import { QueryParamsService } from '@core/services/query-params/query-params.service';
-import { TargetNetworkAddressService } from '@features/swaps/shared/components/target-network-address/services/target-network-address.service';
+import { TargetNetworkAddressService } from '@features/swaps/core/services/target-network-address-service/target-network-address.service';
 import { PlatformConfigurationService } from '@core/services/backend/platform-configuration/platform-configuration.service';
 import BlockchainIsUnavailableWarning from '@core/errors/models/common/blockchain-is-unavailable.warning';
 import { blockchainLabel } from '@shared/constants/blockchain/blockchain-label';
 import { CrossChainApiService } from '@core/services/backend/cross-chain-routing-api/cross-chain-api.service';
+import { TokenAmount } from '@shared/models/tokens/token-amount';
+import { TokensService } from '@core/services/tokens/tokens.service';
+import { BasicTransactionOptions } from 'rubic-sdk/lib/core/blockchain/web3-private-service/web3-private/models/basic-transaction-options';
 
 @Injectable()
 export class CrossChainCalculationService extends TradeCalculationService {
@@ -60,8 +63,7 @@ export class CrossChainCalculationService extends TradeCalculationService {
   }
 
   constructor(
-    private readonly sdk: RubicSdkService,
-    private readonly swapFormService: SwapFormService,
+    private readonly sdkService: SdkService,
     private readonly settingsService: SettingsService,
     private readonly walletConnectorService: WalletConnectorService,
     private readonly iframeService: IframeService,
@@ -74,14 +76,15 @@ export class CrossChainCalculationService extends TradeCalculationService {
     private readonly queryParamsService: QueryParamsService,
     private readonly targetNetworkAddressService: TargetNetworkAddressService,
     private readonly platformConfigurationService: PlatformConfigurationService,
-    private readonly crossChainApiService: CrossChainApiService
+    private readonly crossChainApiService: CrossChainApiService,
+    private readonly tokensService: TokensService
   ) {
     super('cross-chain-routing');
   }
 
   public isSupportedBlockchain(blockchain: BlockchainName): boolean {
-    return Object.values(this.sdk.crossChain.tradeProviders).some((provider: CrossChainProvider) =>
-      provider.isSupportedBlockchain(blockchain)
+    return Object.values(this.sdkService.crossChain.tradeProviders).some(
+      (provider: CrossChainProvider) => provider.isSupportedBlockchain(blockchain)
     );
   }
 
@@ -89,19 +92,21 @@ export class CrossChainCalculationService extends TradeCalculationService {
     fromBlockchain: BlockchainName,
     toBlockchain: BlockchainName
   ): boolean {
-    return Object.values(this.sdk.crossChain.tradeProviders).some((provider: CrossChainProvider) =>
-      provider.areSupportedBlockchains(fromBlockchain, toBlockchain)
+    return Object.values(this.sdkService.crossChain.tradeProviders).some(
+      (provider: CrossChainProvider) =>
+        provider.areSupportedBlockchains(fromBlockchain, toBlockchain)
     );
   }
 
   public calculateTrade(
     calculateNeedApprove: boolean,
-    disabledTradeTypes: CrossChainTradeType[]
+    disabledTradeTypes: CrossChainTradeType[],
+    fromToken: TokenAmount,
+    toToken: TokenAmount,
+    fromAmount: BigNumber
   ): Observable<CrossChainCalculatedTradeData> {
-    const { fromToken, fromAmount, toToken } = this.swapFormService.inputValue;
-
     const slippageTolerance = this.settingsService.crossChainRoutingValue.slippageTolerance / 100;
-    const receiverAddress = this.receiverAddress;
+    // const receiverAddress = this.receiverAddress; todo return
 
     const { disabledCrossChainTradeTypes: apiDisabledTradeTypes, disabledBridgeTypes } =
       this.platformConfigurationService.disabledProviders;
@@ -131,11 +136,11 @@ export class CrossChainCalculationService extends TradeCalculationService {
         'symbiosis'
       ],
       lifiDisabledBridgeTypes: disabledBridgeTypes?.[CROSS_CHAIN_TRADE_TYPE.LIFI],
-      rangoDisabledBridgeTypes: disabledBridgeTypes?.[CROSS_CHAIN_TRADE_TYPE.RANGO],
-      ...(receiverAddress && { receiverAddress })
+      rangoDisabledBridgeTypes: disabledBridgeTypes?.[CROSS_CHAIN_TRADE_TYPE.RANGO]
+      // ...(receiverAddress && { receiverAddress })
     };
 
-    return this.sdk.crossChain
+    return this.sdkService.crossChain
       .calculateTradesReactively(fromToken, fromAmount, toToken, options)
       .pipe(
         switchMap(reactivelyCalculatedTradeData => {
@@ -143,15 +148,19 @@ export class CrossChainCalculationService extends TradeCalculationService {
 
           if (wrappedTrade?.error instanceof NotWhitelistedProviderError) {
             this.saveNotWhitelistedProvider(
+              wrappedTrade.error,
               fromToken.blockchain,
-              wrappedTrade.tradeType,
-              wrappedTrade.error.providerRouter,
-              wrappedTrade.error.providerGateway
+              wrappedTrade.tradeType
             );
           }
 
           const trade = wrappedTrade?.trade;
-          return from(calculateNeedApprove && trade ? from(trade.needApprove()) : of(false)).pipe(
+
+          const needApprove$ = from(
+            calculateNeedApprove && trade ? from(trade.needApprove()) : of(false)
+          );
+
+          return needApprove$.pipe(
             map((needApprove): CrossChainCalculatedTradeData => {
               return {
                 total: total,
@@ -184,14 +193,11 @@ export class CrossChainCalculationService extends TradeCalculationService {
       bridgeProvider: wrappedTrade.tradeType
     };
 
-    if (this.queryParamsService.enabledProviders) {
-      return smartRouting;
-    }
-
     if (
-      wrappedTrade.trade instanceof LifiCrossChainTrade ||
-      wrappedTrade.trade instanceof ViaCrossChainTrade ||
-      wrappedTrade.trade instanceof RangoCrossChainTrade
+      (wrappedTrade.trade instanceof LifiCrossChainTrade ||
+        wrappedTrade.trade instanceof ViaCrossChainTrade ||
+        wrappedTrade.trade instanceof RangoCrossChainTrade) &&
+      wrappedTrade.trade.bridgeType
     ) {
       return {
         ...smartRouting,
@@ -211,7 +217,7 @@ export class CrossChainCalculationService extends TradeCalculationService {
       : null;
 
     let approveInProgressSubscription$: Subscription;
-    const swapOptions = {
+    const swapOptions: BasicTransactionOptions = {
       onTransactionHash: () => {
         approveInProgressSubscription$ = this.notificationsService.showApproveInProgress();
       },
@@ -239,33 +245,47 @@ export class CrossChainCalculationService extends TradeCalculationService {
     this.checkBlockchainsAvailable(calculatedTrade);
     this.checkDeviceAndShowNotification();
 
+    const [fromToken, toToken] = await Promise.all([
+      this.tokensService.findToken(calculatedTrade.trade.from),
+      this.tokensService.findToken(calculatedTrade.trade.to)
+    ]);
+
     const fromAddress = this.authService.userAddress;
+    let transactionHash: string;
+
     const onTransactionHash = (txHash: string) => {
+      transactionHash = txHash;
       confirmCallback?.();
+      this.crossChainApiService.createTrade(txHash, calculatedTrade.trade);
 
       const timestamp = Date.now();
       const viaUuid =
         calculatedTrade.trade instanceof ViaCrossChainTrade && calculatedTrade.trade.uuid;
       const rangoRequestId =
         calculatedTrade.trade instanceof RangoCrossChainTrade && calculatedTrade.trade.requestId;
+      const symbiosisVersion =
+        calculatedTrade.trade instanceof SymbiosisCrossChainTrade && calculatedTrade.trade.version;
 
-      const tradeData: RecentTrade = {
+      const tradeData: CrossChainRecentTrade = {
         srcTxHash: txHash,
-        fromToken: this.swapFormService.inputValue.fromToken,
-        toToken: this.swapFormService.inputValue.toToken,
+        fromToken,
+        toToken,
         crossChainTradeType: calculatedTrade.tradeType,
         timestamp,
         bridgeType: calculatedTrade.trade.bridgeType,
         amountOutMin: calculatedTrade.trade.toTokenAmountMin.toFixed(),
 
         ...(viaUuid && { viaUuid }),
-        ...(rangoRequestId && { rangoRequestId })
+        ...(rangoRequestId && { rangoRequestId }),
+        ...(symbiosisVersion && { symbiosisVersion })
       };
 
-      this.openSwapSchemeModal(calculatedTrade, txHash, timestamp);
-      this.recentTradesStoreService.saveTrade(fromAddress, tradeData);
+      this.openSwapSchemeModal(calculatedTrade, txHash, timestamp, fromToken, toToken);
+      try {
+        this.recentTradesStoreService.saveTrade(fromAddress, tradeData);
+      } catch {}
 
-      this.notifyGtmAfterSignTx(txHash);
+      this.notifyGtmAfterSignTx(txHash, fromToken, toToken, calculatedTrade.trade.from.tokenAmount);
     };
 
     const blockchain = calculatedTrade.trade.from.blockchain;
@@ -273,23 +293,31 @@ export class CrossChainCalculationService extends TradeCalculationService {
       ? Web3Pure.toWei(await this.gasService.getGasPriceInEthUnits(blockchain))
       : null;
 
-    const receiverAddress = this.receiverAddress;
+    // const receiverAddress = this.receiverAddress; todo return
     const swapOptions: SwapTransactionOptions = {
       onConfirm: onTransactionHash,
-      ...(receiverAddress && { receiverAddress }),
+      // ...(receiverAddress && { receiverAddress }),
       ...(gasPrice && { gasPrice })
     };
 
     try {
       await calculatedTrade.trade.swap(swapOptions);
-      this.showSuccessTrxNotification(calculatedTrade.tradeType);
+      this.showSuccessTrxNotification();
+      await this.crossChainApiService.patchTrade(transactionHash, true);
     } catch (err) {
+      if (
+        transactionHash &&
+        err instanceof Error &&
+        err.message.includes('Transaction was not mined')
+      ) {
+        await this.crossChainApiService.patchTrade(transactionHash, false);
+      }
+
       if (err instanceof NotWhitelistedProviderError) {
         this.saveNotWhitelistedProvider(
+          err,
           calculatedTrade.trade.from.blockchain,
-          calculatedTrade.tradeType,
-          err.providerRouter,
-          err.providerGateway
+          calculatedTrade.tradeType
         );
       }
       throw err;
@@ -313,9 +341,12 @@ export class CrossChainCalculationService extends TradeCalculationService {
     }
   }
 
-  private notifyGtmAfterSignTx(txHash: string): void {
-    const { fromToken, toToken, fromAmount } = this.swapFormService.inputValue;
-
+  private notifyGtmAfterSignTx(
+    txHash: string,
+    fromToken: TokenAmount,
+    toToken: TokenAmount,
+    fromAmount: BigNumber
+  ): void {
     // @TODO remove hardcode
     const fee = new BigNumber(1);
 
@@ -332,9 +363,10 @@ export class CrossChainCalculationService extends TradeCalculationService {
   public openSwapSchemeModal(
     calculatedTrade: CrossChainCalculatedTrade,
     txHash: string,
-    timestamp: number
+    timestamp: number,
+    fromToken: TokenAmount,
+    toToken: TokenAmount
   ): void {
-    const { fromBlockchain, toBlockchain, fromToken, toToken } = this.swapFormService.inputValue;
     const { trade, route } = calculatedTrade;
 
     const bridgeType = trade.bridgeType;
@@ -359,17 +391,18 @@ export class CrossChainCalculationService extends TradeCalculationService {
       calculatedTrade.trade instanceof RangoCrossChainTrade
         ? calculatedTrade.trade.requestId
         : undefined;
-
     const amountOutMin = calculatedTrade.trade.toTokenAmountMin.toFixed();
+    const symbiosisVersion =
+      calculatedTrade.trade instanceof SymbiosisCrossChainTrade
+        ? calculatedTrade.trade.version
+        : undefined;
 
     this.dialogService
       .open<SwapSchemeModalData>(new PolymorpheusComponent(SwapSchemeModalComponent), {
         size: this.headerStore.isMobile ? 'page' : 'l',
         data: {
           fromToken,
-          fromBlockchain,
           toToken,
-          toBlockchain,
           srcProvider: fromTradeProvider,
           dstProvider: toTradeProvider,
           crossChainProvider: calculatedTrade.tradeType,
@@ -378,20 +411,18 @@ export class CrossChainCalculationService extends TradeCalculationService {
           viaUuid,
           rangoRequestId,
           timestamp,
-          amountOutMin
+          amountOutMin,
+          symbiosisVersion
         }
       })
       .subscribe();
   }
 
   private saveNotWhitelistedProvider(
+    error: NotWhitelistedProviderError,
     blockchain: BlockchainName,
-    tradeType: CrossChainTradeType,
-    routerAddress: string,
-    gatewayAddress?: string
+    tradeType: CrossChainTradeType
   ): void {
-    this.crossChainApiService
-      .saveNotWhitelistedProvider(blockchain, tradeType, routerAddress, gatewayAddress)
-      .subscribe();
+    this.crossChainApiService.saveNotWhitelistedProvider(error, blockchain, tradeType).subscribe();
   }
 }

@@ -13,7 +13,9 @@ import {
   WrongNetworkError as SdkWrongNetworkError,
   DeflationTokenError as SdkDeflationTokenError,
   MinAmountError as SdkMinAmountError,
-  MaxAmountError as SdkMaxAmountError
+  MaxAmountError as SdkMaxAmountError,
+  UnsupportedReceiverAddressError as SdkUnsupportedReceiverAddressError,
+  InsufficientFundsGasPriceValueError
 } from 'rubic-sdk';
 import { RubicError } from '@core/errors/models/rubic-error';
 import { ERROR_TYPE } from '@core/errors/models/error-type';
@@ -31,6 +33,7 @@ import UnsupportedDeflationTokenWarning from './common/unsupported-deflation-tok
 import MinAmountError from '@core/errors/models/common/min-amount-error';
 import MaxAmountError from '@core/errors/models/common/max-amount-error';
 import { ExecutionRevertedError } from '@core/errors/models/common/execution-reverted-error';
+import UnsupportedReceiverAddressError from '@core/errors/models/common/unsupported-receiver-address-error';
 
 export class RubicSdkErrorParser {
   private static parseErrorByType(
@@ -79,6 +82,9 @@ export class RubicSdkErrorParser {
     if (err instanceof SdkMaxAmountError) {
       return new MaxAmountError(err);
     }
+    if (err instanceof SdkUnsupportedReceiverAddressError) {
+      return new UnsupportedReceiverAddressError();
+    }
 
     return RubicSdkErrorParser.parseErrorByMessage(err);
   }
@@ -86,7 +92,16 @@ export class RubicSdkErrorParser {
   private static parseErrorByMessage(
     err: RubicError<ERROR_TYPE> | RubicSdkError
   ): RubicError<ERROR_TYPE> {
-    if (err.stack?.includes('InsufficientFundsGasPriceValueError')) {
+    if (
+      err.message.includes('Received amount of tokens are less then expected') ||
+      err.message.includes('DODORouteProxy: Return amount is not enough')
+    ) {
+      return new TokenWithFeeError();
+    }
+    if (
+      err.stack?.includes('InsufficientFundsGasPriceValueError') ||
+      err instanceof InsufficientFundsGasPriceValueError
+    ) {
       return new RubicError(
         'Insufficient funds for gas fee. Decrease swap amount or increase native tokens balance.'
       );

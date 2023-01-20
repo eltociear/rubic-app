@@ -4,7 +4,7 @@ import { map, takeUntil } from 'rxjs/operators';
 import { WINDOW } from '@ng-web-apis/common';
 import { RubicWindow } from '@shared/utils/rubic-window';
 import { TuiDestroyService } from '@taiga-ui/cdk';
-import { SwapFormService } from '@features/swaps/core/services/swap-form-service/swap-form.service';
+import { SwapFormService } from '@core/services/swaps/swap-form.service';
 import { CrossChainFormService } from '@features/swaps/features/cross-chain/services/cross-chain-form-service/cross-chain-form.service';
 
 @Component({
@@ -27,6 +27,10 @@ export class BestTradePanelComponent {
 
   public readonly selectedTrade$ = this.crossChainFormService.selectedTrade$;
 
+  public readonly fromAmount$ = this.swapFormService.inputValue$.pipe(
+    map(input => input.fromAmount)
+  );
+
   public expanded = false;
 
   public showTradesList = false;
@@ -34,7 +38,7 @@ export class BestTradePanelComponent {
   constructor(
     private readonly cdr: ChangeDetectorRef,
     private readonly crossChainFormService: CrossChainFormService,
-    private readonly formService: SwapFormService,
+    private readonly swapFormService: SwapFormService,
     @Inject(WINDOW) private readonly window: RubicWindow,
     @Self() protected readonly destroy$: TuiDestroyService
   ) {
@@ -42,7 +46,7 @@ export class BestTradePanelComponent {
   }
 
   private formSubscribe(): void {
-    this.formService.inputValueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.swapFormService.inputValue$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.expanded = false;
     });
   }

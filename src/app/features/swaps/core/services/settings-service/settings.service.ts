@@ -1,87 +1,66 @@
 /* eslint-disable rxjs/finnish */
 import { Inject, Injectable } from '@angular/core';
-import { SWAP_PROVIDER_TYPE } from '@features/swaps/features/swaps-form/models/swap-provider-type';
-import { FormControl, FormGroup } from '@ngneat/reactive-forms';
+import { SWAP_PROVIDER_TYPE } from '@features/swaps/features/swap-form/models/swap-provider-type';
 import { StoreService } from '@core/services/store/store.service';
-import { ControlsValue } from '@ngneat/reactive-forms/lib/types';
 import { firstValueFrom, Observable } from 'rxjs';
 import { IframeService } from '@core/services/iframe/iframe.service';
 import { copyObject } from '@shared/utils/utils';
-import { QuerySlippage } from '@core/services/query-params/models/query-params';
 import { AuthService } from '@core/services/auth/auth.service';
-import { filter, startWith, switchMap, tap } from 'rxjs/operators';
-import { TargetNetworkAddressService } from '@features/swaps/shared/components/target-network-address/services/target-network-address.service';
-import { SettingsWarningModalComponent } from '@app/features/swaps/shared/settings-warning-modal/settings-warning-modal.component';
+import { filter, first, switchMap, tap } from 'rxjs/operators';
+import { TargetNetworkAddressService } from '@features/swaps/core/services/target-network-address-service/target-network-address.service';
+import { SettingsWarningModalComponent } from '@app/features/swaps/shared/components/settings-warning-modal/settings-warning-modal.component';
 import { PolymorpheusComponent } from '@tinkoff/ng-polymorpheus';
 import { PriceImpactService } from '@app/core/services/price-impact/price-impact.service';
 import { CrossChainTrade, OnChainTrade } from 'rubic-sdk';
 import { TuiDialogService } from '@taiga-ui/core';
+import {
+  CcrSettingsForm,
+  CcrSettingsFormControls,
+  ItSettingsForm,
+  ItSettingsFormControls,
+  SettingsForm,
+  SettingsFormControls
+} from '@features/swaps/core/services/settings-service/models/settings-form-controls';
+import { FormControl, FormGroup } from '@angular/forms';
+import { QueryParamsService } from '@core/services/query-params/query-params.service';
 
-export interface ItSettingsForm {
-  autoSlippageTolerance: boolean;
-  slippageTolerance: number;
-  deadline: number; // in minutes
-  disableMultihops: boolean;
-  rubicOptimisation: boolean;
-  autoRefresh: boolean;
-  showReceiverAddress: boolean;
-}
-
-export interface CcrSettingsForm {
-  autoSlippageTolerance: boolean;
-  slippageTolerance: number;
-  showReceiverAddress: boolean;
-}
-
-export interface SettingsForm {
-  [SWAP_PROVIDER_TYPE.INSTANT_TRADE]: FormGroup<ItSettingsForm>;
-  [SWAP_PROVIDER_TYPE.CROSS_CHAIN_ROUTING]: FormGroup<CcrSettingsForm>;
-}
-
-export interface SlippageTolerance {
-  instantTrades: number;
-  crossChain: number;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class SettingsService {
-  private readonly defaultSlippageTolerance: SlippageTolerance = {
+  private readonly defaultSlippageTolerance = {
     instantTrades: 2,
     crossChain: 4
   };
 
-  public defaultItSettings: ItSettingsForm;
+  public defaultItSettings = this.getDefaultITSettings();
 
-  public defaultCcrSettings: CcrSettingsForm;
+  public defaultCcrSettings = this.getDefaultCCRSettings();
 
-  public settingsForm: FormGroup<SettingsForm>;
+  public settingsForm = this.createForm();
 
   private ccrShowReceiverAddressUserValue: boolean;
 
-  public get instantTrade(): FormGroup<ItSettingsForm> {
-    return this.settingsForm.controls.INSTANT_TRADE;
+  public get instantTrade(): FormGroup<ItSettingsFormControls> {
+    return this.settingsForm.controls[SWAP_PROVIDER_TYPE.INSTANT_TRADE];
   }
 
   public get instantTradeValue(): ItSettingsForm {
-    return this.instantTrade.value;
+    return this.settingsForm.controls[SWAP_PROVIDER_TYPE.INSTANT_TRADE].getRawValue();
   }
 
   public get instantTradeValueChanges(): Observable<ItSettingsForm> {
-    return this.instantTrade.valueChanges;
+    return this.settingsForm.get(SWAP_PROVIDER_TYPE.INSTANT_TRADE).valueChanges;
   }
 
-  public get crossChainRouting(): FormGroup<CcrSettingsForm> {
-    return this.settingsForm.controls.CROSS_CHAIN_ROUTING;
+  public get crossChainRouting(): FormGroup<CcrSettingsFormControls> {
+    return this.settingsForm.controls[SWAP_PROVIDER_TYPE.CROSS_CHAIN_ROUTING];
   }
 
   public get crossChainRoutingValue(): CcrSettingsForm {
-    return this.crossChainRouting.value;
+    return this.settingsForm.controls[SWAP_PROVIDER_TYPE.CROSS_CHAIN_ROUTING].getRawValue();
   }
 
   public get crossChainRoutingValueChanges(): Observable<CcrSettingsForm> {
-    return this.crossChainRouting.valueChanges;
+    return this.settingsForm.get(SWAP_PROVIDER_TYPE.CROSS_CHAIN_ROUTING).valueChanges;
   }
 
   constructor(
@@ -89,22 +68,27 @@ export class SettingsService {
     private readonly iframeService: IframeService,
     private readonly authService: AuthService,
     private readonly targetNetworkAddressService: TargetNetworkAddressService,
+    private readonly queryParamsService: QueryParamsService,
     @Inject(TuiDialogService) private readonly dialogService: TuiDialogService
   ) {
-    this.defaultItSettings = this.getDefaultITSettings();
-    this.defaultCcrSettings = this.getDefaultCCRSettings();
-
-    this.createForm();
     this.initSubscriptions();
+    this.subscribeOnQueryParams();
   }
 
-  public changeDefaultSlippage(slippage: QuerySlippage): void {
-    this.defaultItSettings = this.getDefaultITSettings(slippage.slippageIt);
-    this.defaultCcrSettings = this.getDefaultCCRSettings(slippage.slippageCcr);
+  public subscribeOnQueryParams(): void {
+    this.queryParamsService.queryParams$.pipe(first(Boolean)).subscribe(queryParams => {
+      if (queryParams.iframe) {
+        const slippage = {
+          slippageIt: queryParams.slippageIt ? parseFloat(queryParams.slippageIt) : null,
+          slippageCcr: queryParams.slippageCcr ? parseFloat(queryParams.slippageCcr) : null
+        };
 
-    this.instantTrade.patchValue({ slippageTolerance: this.defaultItSettings.slippageTolerance });
-    this.crossChainRouting.patchValue({
-      slippageTolerance: this.defaultCcrSettings.slippageTolerance
+        this.defaultItSettings = this.getDefaultITSettings(slippage.slippageIt);
+        this.instantTrade.patchValue(this.defaultItSettings);
+
+        this.defaultCcrSettings = this.getDefaultCCRSettings(slippage.slippageCcr);
+        this.crossChainRouting.patchValue(this.defaultCcrSettings);
+      }
     });
   }
 
@@ -115,7 +99,6 @@ export class SettingsService {
         this.parseSlippage(slippageIt) ?? this.defaultSlippageTolerance.instantTrades,
       deadline: 20,
       disableMultihops: false,
-      rubicOptimisation: true,
       autoRefresh: Boolean(this.authService?.user?.address),
       showReceiverAddress: false
     };
@@ -137,20 +120,19 @@ export class SettingsService {
     return Math.min(Math.max(slippage, 0.1), 50);
   }
 
-  private createForm(): void {
-    this.settingsForm = new FormGroup<SettingsForm>({
-      [SWAP_PROVIDER_TYPE.INSTANT_TRADE]: new FormGroup<ItSettingsForm>({
+  private createForm(): FormGroup<SettingsFormControls> {
+    return new FormGroup<SettingsFormControls>({
+      [SWAP_PROVIDER_TYPE.INSTANT_TRADE]: new FormGroup<ItSettingsFormControls>({
         autoSlippageTolerance: new FormControl<boolean>(
           this.defaultItSettings.autoSlippageTolerance
         ),
         slippageTolerance: new FormControl<number>(this.defaultItSettings.slippageTolerance),
         deadline: new FormControl<number>(this.defaultItSettings.deadline),
         disableMultihops: new FormControl<boolean>(this.defaultItSettings.disableMultihops),
-        rubicOptimisation: new FormControl<boolean>(this.defaultItSettings.rubicOptimisation),
         autoRefresh: new FormControl<boolean>(this.defaultItSettings.autoRefresh),
         showReceiverAddress: new FormControl<boolean>(this.defaultItSettings.showReceiverAddress)
       }),
-      [SWAP_PROVIDER_TYPE.CROSS_CHAIN_ROUTING]: new FormGroup<CcrSettingsForm>({
+      [SWAP_PROVIDER_TYPE.CROSS_CHAIN_ROUTING]: new FormGroup<CcrSettingsFormControls>({
         autoSlippageTolerance: new FormControl<boolean>(
           this.defaultItSettings.autoSlippageTolerance
         ),
@@ -170,13 +152,9 @@ export class SettingsService {
             this.settingsForm.patchValue({ ...JSON.parse(localData) });
           }
         }),
-        switchMap(() => {
-          return this.settingsForm.valueChanges.pipe(startWith(this.settingsForm.value));
-        })
+        switchMap(() => this.settingsForm.valueChanges)
       )
-      .subscribe(form => {
-        this.storeService.setItem('settings', this.serializeForm(form));
-      });
+      .subscribe(() => this.saveSettingsToLocalStorage());
 
     this.targetNetworkAddressService.isAddressRequired$.subscribe(isAddressRequired => {
       if (isAddressRequired) {
@@ -199,7 +177,7 @@ export class SettingsService {
    * Deletes some form properties and serialize it to JSON string.
    * @param form form to serialize
    */
-  private serializeForm(form: ControlsValue<SettingsForm>): string {
+  private serializeForm(form: SettingsForm): string {
     const formClone = copyObject(form);
     return JSON.stringify(formClone);
   }
@@ -240,5 +218,9 @@ export class SettingsService {
     }
 
     return true;
+  }
+
+  public saveSettingsToLocalStorage(form: SettingsForm = this.settingsForm.getRawValue()): void {
+    this.storeService.setItem('settings', this.serializeForm(form));
   }
 }

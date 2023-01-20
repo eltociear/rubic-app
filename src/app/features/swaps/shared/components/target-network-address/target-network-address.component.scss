@@ -25,9 +25,16 @@
   }
 
   ::ng-deep .network-container {
-    &__input-status-icon {
+    &__input-status-icon,
+    &__input-clipboard-icon {
       width: 26px;
       height: 26px;
+    }
+
+    &__input-clipboard-icon {
+      cursor: pointer;
+
+      pointer-events: all;
     }
 
     &__iframe-input {
@@ -35,18 +42,22 @@
     }
 
     tui-wrapper[data-appearance='textfield'] {
-      --tui-base-01: var(--rubic-base-18);
+      --tui-base-01: transparent;
       border-radius: 50px;
       box-shadow: none;
 
       @include iframe {
-        --tui-base-01: var(--main-background);
+        --tui-base-01: var(--primary-background);
         border-radius: 10px;
         box-shadow: none;
 
         &::after {
           border: none;
         }
+      }
+
+      &::after {
+        border: 1px solid var(--transparent-line);
       }
 
       input {
@@ -66,6 +77,10 @@
           padding: 0 0 0 var(--tui-padding-s) !important;
         }
       }
+
+      .placeholder {
+        font-size: 14px;
+      }
     }
 
     &__row {
@@ -80,9 +95,15 @@
 
       cursor: pointer;
 
-      svg {
-        width: 21px;
-        height: 21px;
+      ::ng-deep {
+        svg {
+          width: 15px;
+          height: 15px;
+
+          path {
+            fill: var(--secondary-text);
+          }
+        }
       }
     }
   }

@@ -2,13 +2,7 @@
   <main class="instant-trade-bottom-form__body">
     <div class="instant-trade-bottom-form__body-top">
       <div class="instant-trade-bottom-form__left-part">
-        <app-rubic-tokens
-          [loading]="loading"
-          formType="to"
-          [tokens]="tokens"
-          [favoriteTokens]="favoriteTokens"
-          [formService]="swapFormService"
-        ></app-rubic-tokens>
+        <app-select-asset-button-tokens formType="to"></app-select-asset-button-tokens>
 
         <ng-container *noFrame>
           <div *ngIf="selectedProvider" class="instant-trade-bottom-form__provider-badge">
@@ -19,13 +13,27 @@
 
       <div
         class="instant-trade-bottom-form__amount"
+        [ngClass]="{
+          'instant-trade-bottom-form__amount__output_error': errorText && !isIframe
+        }"
         *ngLet="allowTrade && ethWethTrade as wrapProvider"
       >
+        <ng-container *ngIf="errorText && !isIframe && fromAmount">
+          {{ 'errors.tradingIsNotAvailable' | translate }}
+
+          <div
+            tuiHintMode="error"
+            class="instant-trade-bottom-form__hint_error"
+            [inlineSVG]="'/assets/images/icons/hint.svg'"
+            [tuiHint]="errorText | translate"
+          ></div>
+        </ng-container>
+
         <ng-container *onlyFrame="'vertical'">
-          <app-iframe-blockchain-indicator
+          <app-iframe-asset-type-indicator
             *ngIf="toToken?.blockchain as blockchain"
-            [blockchain]="blockchain"
-          ></app-iframe-blockchain-indicator>
+            [assetType]="blockchain"
+          ></app-iframe-asset-type-indicator>
         </ng-container>
 
         <div
@@ -45,7 +53,7 @@
                 ? (fromAmount | bigNumberFormat)
                 : (toAmount
                   | bigNumberFormat
-                  | withRound: 'toClosestValue':{ decimals: toToken?.decimals })
+                  | withRound : 'toClosestValue' : { decimals: toToken?.decimals })
             }}
             <app-tokens-rate *noFrame></app-tokens-rate>
           </ng-container>
@@ -77,9 +85,9 @@
       >
       </app-providers-panels-container>
     </ng-container>
-    <app-target-network-address
-      *ngIf="displayTargetAddressInput$ | async"
-    ></app-target-network-address>
+    <!--    <app-target-network-address-->
+    <!--      *ngIf="displayTargetAddressInput$ | async"-->
+    <!--    ></app-target-network-address>-->
   </main>
 </div>
 
@@ -89,6 +97,7 @@
     [withApproveButton]="withApproveButton"
     [status]="tradeStatus"
     [buttonText]="!ethWethTrade ? 'Swap' : isFromNative ? 'Wrap' : 'Unwrap'"
+    [isOnramper]="isOnramper$ | async"
     (onSwapClick)="createTrade()"
     (onApproveClick)="approveTrade()"
     (onUpdateRateClick)="onSetHiddenData()"

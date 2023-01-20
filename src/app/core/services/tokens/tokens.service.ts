@@ -1,5 +1,14 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, finalize, forkJoin, from, Observable, of, Subject } from 'rxjs';
+import {
+  BehaviorSubject,
+  finalize,
+  firstValueFrom,
+  forkJoin,
+  from,
+  Observable,
+  of,
+  Subject
+} from 'rxjs';
 import { List } from 'immutable';
 import { TokenAmount } from '@shared/models/tokens/token-amount';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -62,7 +71,9 @@ export class TokensService {
     TOKENS_PAGINATION
   );
 
-  public readonly tokensNetworkState$ = this._tokensNetworkState$.asObservable();
+  public get tokensNetworkState(): TokensNetworkState {
+    return this._tokensNetworkState$.value;
+  }
 
   /**
    * Current user address.
@@ -103,6 +114,8 @@ export class TokensService {
     );
   }
 
+  public needRefetchTokens: boolean;
+
   constructor(
     private readonly tokensApiService: TokensApiService,
     private readonly authService: AuthService,
@@ -119,7 +132,9 @@ export class TokensService {
   private setupSubscriptions(): void {
     this._tokensRequestParameters$
       .pipe(
-        switchMap(params => this.tokensApiService.getTokensList(params, this._tokensNetworkState$)),
+        switchMap(params => {
+          return this.tokensApiService.getTokensList(params, this._tokensNetworkState$);
+        }),
         switchMap(tokens => {
           const newTokens = this.setDefaultTokensParams(tokens, false);
           return this.calculateTokensBalancesByType('default', newTokens);
@@ -129,7 +144,9 @@ export class TokensService {
           return of();
         })
       )
-      .subscribe();
+      .subscribe(() => {
+        this.needRefetchTokens = this.tokensApiService.needRefetchTokens;
+      });
 
     this.authService.currentUser$.subscribe(async user => {
       this.userAddress = user?.address;
@@ -319,22 +336,12 @@ export class TokensService {
 
   /**
    * Sets default image to token, in case original image has thrown error.
-   * Patches tokens list, if {@param token} is passed.
    * @param $event Img error event.
-   * @param token If passed, then tokens list will be patched.
    */
-  public onTokenImageError($event: Event, token: TokenAmount = null): void {
+  public onTokenImageError($event: Event): void {
     const target = $event.target as HTMLImageElement;
     if (target.src !== DEFAULT_TOKEN_IMAGE) {
       target.src = DEFAULT_TOKEN_IMAGE;
-
-      if (token) {
-        const newToken = {
-          ...token,
-          image: DEFAULT_TOKEN_IMAGE
-        };
-        this.patchToken(newToken);
-      }
     }
   }
 
@@ -388,7 +395,7 @@ export class TokensService {
         tap(tokenPrice => {
           if (tokenPrice) {
             const foundToken = this.tokens?.find(t => TokensService.areTokensEqual(t, token));
-            if (foundToken && tokenPrice !== foundToken.price) {
+            if (foundToken) {
               const newToken = {
                 ...foundToken,
                 price: tokenPrice
@@ -510,16 +517,18 @@ export class TokensService {
    * @param token Tokens's data to find it by.
    * @param searchBackend If true and token was not retrieved, then request to backend with token's params is sent.
    */
-  public async getTokenByAddress(token: MinimalToken, searchBackend = true): Promise<Token> {
+  public async findToken(token: MinimalToken, searchBackend = false): Promise<TokenAmount> {
     const foundToken = this.tokens.find(t => TokensService.areTokensEqual(t, token));
     if (foundToken) {
       return foundToken;
     }
 
     if (searchBackend) {
-      return this.fetchQueryTokens(token.address, token.blockchain)
-        .pipe(map(backendTokens => backendTokens.get(0)))
-        .toPromise();
+      return firstValueFrom(
+        this.fetchQueryTokens(token.address, token.blockchain).pipe(
+          map(backendTokens => backendTokens.get(0))
+        )
+      );
     }
 
     return null;
@@ -550,7 +559,7 @@ export class TokensService {
     this.tokensApiService
       .fetchSpecificBackendTokens({
         network: blockchain,
-        page: this._tokensNetworkState$.value[blockchain].page
+        page: this._tokensNetworkState$.value[blockchain].page + 1
       })
       .pipe(
         tap(() => this.updateNetworkPage(blockchain)),
@@ -632,7 +641,7 @@ export class TokensService {
         return from(
           Injector.web3PublicService
             .getWeb3Public(favoriteToken.blockchain as Web3PublicSupportedBlockchain)
-            .getTokenBalance(this.walletConnectorService.address, favoriteToken.address)
+            .getBalance(this.walletConnectorService.address, favoriteToken.address)
         );
       }),
       tap((favoriteTokenBalance: BigNumber) => {

@@ -4,16 +4,18 @@
     isMobile: isMobile$ | async
   } as button"
 >
-  <ng-container *ngLet="button.error.type | functionCall: allowChangeNetwork:this as allowChange">
+  <ng-container
+    *ngLet="button.error.type | functionCall : allowChangeNetwork : this as allowChange"
+  >
     <ng-container *ngIf="allowChange && !button.isMobile; else errorInfo">
       <app-rubic-button
         [attr.error]="true"
-        appearance="secondary"
+        appearance="primary"
         [loading]="loading"
         [disabled]="loading"
         (onClick)="changeNetwork()"
       >
-        {{ 'common.switchTo' | translate: { networkName: (fromBlockchain$ | async) } }}
+        {{ 'common.switchTo' | translate : { networkName: (fromBlockchainLabel$ | async) } }}
       </app-rubic-button>
     </ng-container>
 
@@ -22,7 +24,7 @@
         <app-rubic-button
           class="error-button"
           [attr.error]="true"
-          [attr.error-min-max]="button.error.type | functionCall: isMinMaxError"
+          [attr.error-min-max]="button.error.type | functionCall : isMinMaxError"
           appearance="secondary"
           [disabled]="true"
         >
