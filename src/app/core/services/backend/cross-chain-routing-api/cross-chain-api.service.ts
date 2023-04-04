@@ -6,6 +6,8 @@ import {
   CrossChainTrade,
   CrossChainTradeType,
   NotWhitelistedProviderError,
+  UnapprovedContractError,
+  UnapprovedMethodError,
   Web3Pure
 } from 'rubic-sdk';
 import { TO_BACKEND_BLOCKCHAINS } from '@app/shared/constants/blockchain/backend-blockchains';
@@ -34,15 +36,20 @@ export class CrossChainApiService {
   ) {}
 
   public saveNotWhitelistedProvider(
-    error: NotWhitelistedProviderError,
+    error: NotWhitelistedProviderError | UnapprovedContractError | UnapprovedMethodError,
     blockchain: BlockchainName,
     tradeType: CrossChainTradeType
   ): Observable<void> {
+    const address =
+      error instanceof NotWhitelistedProviderError
+        ? error.providerRouter + (error.providerGateway ? `_${error.providerGateway}` : '')
+        : error.contract;
     return this.httpService.post(`info/new_provider`, {
       network: TO_BACKEND_BLOCKCHAINS[blockchain],
       title: TO_BACKEND_CROSS_CHAIN_PROVIDERS[tradeType],
-      address: error.providerRouter + (error.providerGateway ? `_${error.providerGateway}` : ''),
-      cause: error.cause
+      address,
+      cause: error.cause,
+      ...(!(error instanceof NotWhitelistedProviderError) && { selector: error.method })
     });
   }
 

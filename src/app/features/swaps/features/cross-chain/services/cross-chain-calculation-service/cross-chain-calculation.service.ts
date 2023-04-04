@@ -16,7 +16,9 @@ import {
   ChangenowCrossChainTrade,
   ChangenowPaymentInfo,
   Token,
-  PriceToken
+  PriceToken,
+  UnapprovedContractError,
+  UnapprovedMethodError
 } from 'rubic-sdk';
 import { SdkService } from '@core/services/sdk/sdk.service';
 import { SettingsService } from '@features/swaps/core/services/settings-service/settings.service';
@@ -348,7 +350,11 @@ export class CrossChainCalculationService extends TradeCalculationService {
         await this.crossChainApiService.patchTrade(transactionHash, false);
       }
 
-      if (err instanceof NotWhitelistedProviderError) {
+      if (
+        err instanceof NotWhitelistedProviderError ||
+        err instanceof UnapprovedContractError ||
+        err instanceof UnapprovedMethodError
+      ) {
         this.saveNotWhitelistedProvider(
           err,
           calculatedTrade.trade.from.blockchain,
@@ -460,7 +466,7 @@ export class CrossChainCalculationService extends TradeCalculationService {
   }
 
   private saveNotWhitelistedProvider(
-    error: NotWhitelistedProviderError,
+    error: NotWhitelistedProviderError | UnapprovedContractError | UnapprovedMethodError,
     blockchain: BlockchainName,
     tradeType: CrossChainTradeType
   ): void {

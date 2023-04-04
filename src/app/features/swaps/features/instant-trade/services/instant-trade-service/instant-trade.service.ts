@@ -23,7 +23,9 @@ import {
   TxStatus,
   BlockchainsInfo,
   NotWhitelistedProviderError,
-  PriceToken
+  PriceToken,
+  UnapprovedContractError,
+  UnapprovedMethodError
 } from 'rubic-sdk';
 import { SdkService } from '@core/services/sdk/sdk.service';
 import { SettingsService } from '@features/swaps/core/services/settings-service/settings.service';
@@ -327,7 +329,11 @@ export class InstantTradeService extends TradeCalculationService {
     } catch (err) {
       subscription$?.unsubscribe();
 
-      if (err instanceof NotWhitelistedProviderError) {
+      if (
+        err instanceof NotWhitelistedProviderError ||
+        err instanceof UnapprovedContractError ||
+        err instanceof UnapprovedMethodError
+      ) {
         this.saveNotWhitelistedProvider(err, fromBlockchain, (trade as OnChainTrade)?.type);
       }
 
@@ -412,7 +418,7 @@ export class InstantTradeService extends TradeCalculationService {
   }
 
   public saveNotWhitelistedProvider(
-    error: NotWhitelistedProviderError,
+    error: NotWhitelistedProviderError | UnapprovedContractError | UnapprovedMethodError,
     blockchain: BlockchainName,
     tradeType: OnChainTradeType
   ): void {
