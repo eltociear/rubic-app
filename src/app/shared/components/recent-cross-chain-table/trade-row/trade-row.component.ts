@@ -296,6 +296,13 @@ export class TradeRowComponent implements OnInit, OnDestroy {
         this.trade.fromToken.blockchain,
         ADDRESS_TYPE.TRANSACTION
       );
+      if (this.isArbitrumBridgeTrade) {
+        this.uiTrade.dstTxLink = new ScannerLinkPipe().transform(
+          revertTxReceipt.transactionHash,
+          this.trade.toToken.blockchain,
+          ADDRESS_TYPE.TRANSACTION
+        );
+      }
       this.cdr.detectChanges();
     }
   }
@@ -352,7 +359,7 @@ export class TradeRowComponent implements OnInit, OnDestroy {
           this.uiTrade.dstTxHash = revertTxReceipt.transactionHash;
           this.uiTrade.dstTxLink = new ScannerLinkPipe().transform(
             revertTxReceipt.transactionHash,
-            this.trade.fromToken.blockchain,
+            this.trade.toToken.blockchain,
             ADDRESS_TYPE.TRANSACTION
           );
           this.cdr.detectChanges();
