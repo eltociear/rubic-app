@@ -112,8 +112,7 @@ const BLOCKCHAINS_MAPPING: Record<BlockchainName, string> = {
   [BLOCKCHAIN_NAME.HORIZEN]: 'horizen',
   [BLOCKCHAIN_NAME.ZILLIQA]: 'zilliqa',
   [BLOCKCHAIN_NAME.KAVA_COSMOS]: 'kava_cosmos',
-  [BLOCKCHAIN_NAME.ZK_SYNC]: 'zksync',
-  [BLOCKCHAIN_NAME.PULSECHAIN]: 'pulsechain'
+  [BLOCKCHAIN_NAME.ZK_SYNC]: 'zksync'
 } as const;
 
 export const TO_BACKEND_BLOCKCHAINS: Record<BlockchainName, BackendBlockchain> = {

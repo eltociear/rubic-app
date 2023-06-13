@@ -25,8 +25,7 @@ const supportedBlockchains = [
   BLOCKCHAIN_NAME.VELAS,
   BLOCKCHAIN_NAME.SYSCOIN,
   BLOCKCHAIN_NAME.ZK_SYNC,
-  BLOCKCHAIN_NAME.OPTIMISM,
-  BLOCKCHAIN_NAME.PULSECHAIN
+  BLOCKCHAIN_NAME.OPTIMISM
 ] as const;
 
 type SupportedBlockchain = typeof supportedBlockchains[number];
@@ -62,8 +61,7 @@ export class CoingeckoApiService {
       [BLOCKCHAIN_NAME.VELAS]: 'velas',
       [BLOCKCHAIN_NAME.SYSCOIN]: 'syscoin',
       [BLOCKCHAIN_NAME.ZK_SYNC]: 'zksync',
-      [BLOCKCHAIN_NAME.OPTIMISM]: 'ethereum',
-      [BLOCKCHAIN_NAME.PULSECHAIN]: 'pulsechain'
+      [BLOCKCHAIN_NAME.OPTIMISM]: 'ethereum'
     };
 
     this.tokenBlockchainId = {
@@ -86,8 +84,7 @@ export class CoingeckoApiService {
       [BLOCKCHAIN_NAME.VELAS]: 'velas',
       [BLOCKCHAIN_NAME.SYSCOIN]: 'syscoin',
       [BLOCKCHAIN_NAME.ZK_SYNC]: 'zksync',
-      [BLOCKCHAIN_NAME.OPTIMISM]: 'ethereum',
-      [BLOCKCHAIN_NAME.PULSECHAIN]: 'pulsechain'
+      [BLOCKCHAIN_NAME.OPTIMISM]: 'ethereum'
     };
   }
 

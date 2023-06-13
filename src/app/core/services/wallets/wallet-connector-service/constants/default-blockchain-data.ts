@@ -106,9 +106,5 @@ export const defaultBlockchainData: Partial<Record<EvmBlockchainName, DefaultBlo
   [BLOCKCHAIN_NAME.ASTAR_EVM]: {
     name: 'Astar EVM',
     rpc: 'https://evm.astar.network/'
-  },
-  [BLOCKCHAIN_NAME.PULSECHAIN]: {
-    name: 'Pulsechain',
-    rpc: 'https://rpc.pulsechain.com'
   }
 };
