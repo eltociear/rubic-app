@@ -36,6 +36,9 @@ $transparent-white: rgba(255, 255, 255, 0.1);
   --mobile-ccr-best-route-label-text: rgb(0, 226, 142);
   --mobile-ccr-best-route-label-background: rgba(0, 226, 142, 0.15);
 
+  --staking-form-duration-background: rgb(33, 33, 33);
+  --staking-form-selected-duration: rgb(46, 46, 46);
+
   --swap-and-earn-points-about: rgb(241, 241, 241);
 
   --primary-text: rgb(0, 0, 0);
@@ -111,8 +114,8 @@ $rubic-font-size-02: 18px;
 $iframe-horizontal-width: 1180px;
 $iframe-horizontal-height: 180px;
 $iframe-horizontal-input-width: 363px;
-$iframe-vertical-width: 350px;
-$iframe-vertical-height: 500px;
+$iframe-vertical-width: 372px;
+$iframe-vertical-height: 530px;
 
 // ***** themes *****
 $dark: 'dark';

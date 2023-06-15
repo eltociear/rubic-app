@@ -1,4 +1,4 @@
-<!--<app-referral-banner href="https://rubic.exchange/zkSync_Era" *noFrame></app-referral-banner>-->
+<app-banner href="https://rubic.exchange/staking" *noFrame></app-banner>
 <header class="rubic-header" *ngLet="currentUser$ | async as currentUser">
   <a
     *noFrame
@@ -47,6 +47,9 @@
       "
       >Swaps</a
     >
+    <div class="button-link" routerLink="/staking" [class.button-link_active]="isStakingPage">
+      Staking
+    </div>
     <a
       class="button-link"
       (click)="navigateToLimitOrder()"
