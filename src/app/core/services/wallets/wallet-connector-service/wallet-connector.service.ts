@@ -1,5 +1,6 @@
 import { Inject, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 import { ErrorsService } from '@core/errors/errors.service';
 import { AddEvmChainParams } from '@core/services/wallets/models/add-evm-chain-params';
 import { MetamaskWalletAdapter } from '@core/services/wallets/wallets-adapters/evm/metamask-wallet-adapter';
@@ -62,7 +63,11 @@ export class WalletConnectorService {
 
   public readonly networkChange$ = this.networkChangeSubject$.asObservable();
 
-  public readonly addressChange$ = this.addressChangeSubject$.asObservable();
+  public readonly addressChange$ = this.addressChangeSubject$.asObservable().pipe(
+    tap(address => {
+      if (!address) this.storeService.deleteItem('RUBIC_PROVIDER');
+    })
+  );
 
   constructor(
     private readonly notificationsService: NotificationsService,
