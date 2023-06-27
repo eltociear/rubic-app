@@ -13883,10 +13883,10 @@ rpc-websockets@^7.5.0:
     bufferutil "^4.0.1"
     utf-8-validate "^5.0.2"
 
-rubic-sdk@4.5.0:
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/rubic-sdk/-/rubic-sdk-4.5.0.tgz#50e890f6f15b79f75b15e984f0db1178c2c351cf"
-  integrity sha512-Nflrk/r01nJQzMEfk1inUaifDhmYKczgVPO+r5D4BF+J3J+kgXfkccB2lENIzZLkvnHi4UXsHkNo9pRrfq4cJA==
+rubic-sdk@4.5.2-alpha-stargate-slippage.0:
+  version "4.5.2-alpha-stargate-slippage.0"
+  resolved "https://registry.yarnpkg.com/rubic-sdk/-/rubic-sdk-4.5.2-alpha-stargate-slippage.0.tgz#06a5e72e18088f23972719d7d0f56de11a5bf7bc"
+  integrity sha512-ZgC5cOGs//AQIlA5r+XxSPo2TwChHueglPJCO3+mLcV4hAfPZSqAVeNZEExVebOIhO7CmP+1d0/PhB8YrXjCTw==
   dependencies:
     "@1inch/limit-order-protocol-utils" "^3.0.0"
     "@arbitrum/sdk" "^3.1.3"
