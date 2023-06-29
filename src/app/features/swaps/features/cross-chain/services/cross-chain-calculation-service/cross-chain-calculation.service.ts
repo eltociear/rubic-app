@@ -176,6 +176,9 @@ export class CrossChainCalculationService extends TradeCalculationService {
           ...new Token(toToken),
           price: new BigNumber(toPrice)
         });
+        console.info('Start calculations');
+        const hash = Math.random().toString(36);
+        console.time(hash);
         return this.sdkService.crossChain
           .calculateTradesReactively(
             fromSdkCompatibleToken,
@@ -200,6 +203,14 @@ export class CrossChainCalculationService extends TradeCalculationService {
                   fromToken.blockchain,
                   wrappedTrade.tradeType
                 );
+              }
+
+              if (wrappedTrade?.tradeType) {
+                console.timeLog(hash, wrappedTrade.tradeType, wrappedTrade);
+              }
+
+              if (total === calculated) {
+                console.timeEnd(hash);
               }
 
               return {
